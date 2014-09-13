@@ -1,0 +1,11 @@
+2
+1
+That is simple, test mode!!!!
+"C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"|"F:/Program Files/Adobe/Photoshop CC/Adobe Photoshop CC (64 Bit)/Photoshop.exe"|
+yandex.ru|www.google.ru|
+-1
+2
+Учёба
+"C:/Program Files/RStudio/bin/rstudio.exe"|"C:/Program Files (x86)/Adobe/Reader 11.0/Reader/AcroRd32.exe"|
+yandex.ru|vk.com|google.ru|www.google.ru|
+40
