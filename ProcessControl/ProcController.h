@@ -20,12 +20,13 @@
 #include <iostream>
 
 #include "dllinjector.h"
+#include "Logger.h"
 
 using std::vector;
 using std::string;
 using std::set;
 
-#define MODE_ALREADY_EXISTS 1
+#define MODE_ALREADY_EXISTS_ERROR 1
 #define TOO_BIG_DESCRIPTION_ERROR 2
 #define EMPTY_LISTS_ERROR 3
 #define BAD_PROGRESS_ERROR 4
@@ -35,6 +36,7 @@ using std::set;
 
 class ProcController
 {
+    Logger _logger;
     struct Mode
     {
         string name;

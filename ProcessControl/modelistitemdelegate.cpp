@@ -21,8 +21,6 @@ QSize ModeListItemDelegate::sizeHint(const QStyleOptionViewItem &option, const Q
 
 void ModeListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    //HARDCODE!!!!!!!!!!!!!!!!!!!!!BE WARE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //TODO: FIX HARDCODE.
     QStyledItemDelegate::paint(painter, option, index);
     painter->save();
 

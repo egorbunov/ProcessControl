@@ -12,9 +12,11 @@
 #include <iostream>
 #include <cwchar>
 #include <string>
+#include "Logger.h"
 
 class DllInjector
 {
+    Logger *_logger;
     static const int _bufferSize = 1024;
     LPTHREAD_START_ROUTINE AllocWritePath(HANDLE hTargetProcHandle, char* dllPath, LPVOID *lpExecParam);
     int injectDLL(HANDLE hTargetProcHandle, LPTHREAD_START_ROUTINE lpStartExecAddr, LPVOID lpExecParam);
@@ -23,6 +25,7 @@ class DllInjector
 
 public:
     int inject(unsigned long processId, std::string dllName);
+    void setLogger(Logger *logger);
     DllInjector();
     ~DllInjector();
 };

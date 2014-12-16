@@ -221,7 +221,7 @@ int MainWindow::addNewMode(string &name, string &description, vector<string> &pr
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Link or program lists must be filled!"));
         break;
-    case MODE_ALREADY_EXISTS:
+    case MODE_ALREADY_EXISTS_ERROR:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Mode with that name is already exist!"));
         break;
@@ -251,7 +251,7 @@ int MainWindow::editMode(string &oldName, string &newName, string &newDescr, vec
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Link or program lists must be filled!"));
         break;
-    case MODE_ALREADY_EXISTS:
+    case MODE_ALREADY_EXISTS_ERROR:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Mode with that name is already exist!"));
         break;

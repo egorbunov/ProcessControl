@@ -1,17 +1,18 @@
 #include "ProcController.h"
 
 int ProcController::_controllersCount = 0;
-const string ProcController::_dll86name = "browserHook86.dll";
+const string ProcController::_dll86name = "indlls\\browserHook86.dll";
 
 // Is it useful??????????????????????????????????????????????
-const string ProcController::_dll64name = "browserHook64.dll";
+const string ProcController::_dll64name = "indlls\\browserHook64.dll";
 //////////////////////////////////////////////////////////////
 
-ProcController::ProcController() : _modsFilename("mode.txt")
+ProcController::ProcController() : _modsFilename("mode.txt"), _logger("logging\\main_log.txt", true)
 {
     _controllersCount += 1;
     loadMods();
     _dllInjector = DllInjector();
+    _dllInjector.setLogger(&_logger);
 
     _controlledBrowsers.insert("chrome.exe");
 }
@@ -291,7 +292,7 @@ int ProcController::editMode(string& oldName, string& newName,
         if (_allModes[i].name == oldName)
             curMode = i;
         if (_allModes[i].name == newName && oldName != newName)
-            return MODE_ALREADY_EXISTS;
+            return MODE_ALREADY_EXISTS_ERROR;
     }
     if (curMode == -1)
         return NO_MODE_TO_EDIT;
@@ -328,7 +329,7 @@ int ProcController::addNewMode(string& name, string& description,
     for (vector<Mode>::iterator mode = _allModes.begin(); mode != _allModes.end(); ++mode)
     {
         if (mode->name == name)
-            return MODE_ALREADY_EXISTS;
+            return MODE_ALREADY_EXISTS_ERROR;
     }
 
     if (procToControl.size() == 0 && urlToControl.size() == 0)
@@ -411,59 +412,65 @@ int ProcController::editProgress(string& name, int newProgress)
 
 int ProcController::hookBrowserProcess(unsigned long pId)
 {
+    _logger.log("INFO: Injecting dll into process : %lu", pId);
     // injecting dll into process with id - pId
-    if (_dllInjector.inject(pId, _dll86name))
-        return 1;
-
-    // Create a pipe to send data
-    HANDLE pipe = CreateNamedPipeA(
-        "\\\\.\\pipe\\my_restricted_urls_pipe", // name of the pipe
-        PIPE_ACCESS_OUTBOUND, // 1-way pipe -- send only
-        PIPE_TYPE_BYTE, // send data as a byte stream
-        1, // only allow 1 instance of this pipe
-        0, // no outbound buffer
-        0, // no inbound buffer
-        0, // use default wait time
-        NULL // use default security attributes
-        );
-
-    if (pipe == NULL || pipe == INVALID_HANDLE_VALUE) {
-        fprintf(stderr, "Failed to create outbound pipe instance. Error code: [%u]\n", GetLastError());
+    if (_dllInjector.inject(pId, _dll86name)) {
+        _logger.log("ERROR: Cannot inject dll.");
         return 1;
     }
+    //// Create a pipe to send data
+    //_logger.log("Creating a named pipe. %i", 10);
+    //HANDLE pipe = CreateNamedPipeA(
+    //    "\\\\.\\pipe\\my_restricted_urls_pipe", // name of the pipe
+    //    PIPE_ACCESS_OUTBOUND, // 1-way pipe -- send only
+    //    PIPE_TYPE_BYTE, // send data as a byte stream
+    //    1, // only allow 1 instance of this pipe
+    //    0, // no outbound buffer
+    //    0, // no inbound buffer
+    //    0, // use default wait time
+    //    NULL // use default security attributes
+    //    );
 
-    // This call blocks until a client process connects to the pipe
-    BOOL result = ConnectNamedPipe(pipe, NULL);
-    if (!result) {
-        fprintf(stderr, "Failed to make connection on named pipe. Error code: [%u]\n", GetLastError());
-        CloseHandle(pipe); // close the pipe
-        return 1;
-    }
+    //if (pipe == NULL || pipe == INVALID_HANDLE_VALUE) {
+    //    _logger.log("ERROR: Failed to create outbound pipe instance. Error code: [%u]\n", GetLastError());
+    //    return 1;
+    //}
 
-    // This call blocks until a client process reads all the data
-    DWORD numBytesWritten = 0;
+    //_logger.log("INFO: Waiting for browser process connects to the pipe.");
+    //// This call blocks until a client process connects to the pipe
+    //BOOL result = ConnectNamedPipe(pipe, NULL);
+    //if (!result) {
+    //    _logger.log("ERROR: Failed to make connection on named pipe. Error code: [%u]\n", GetLastError());
+    //    CloseHandle(pipe); // close the pipe
+    //    return 1;
+    //}
 
-    for (int i = 0; i < _curUrlToControl.size(); ++i) {
-        result = WriteFile(
-            pipe,                           // handle to our outbound pipe
-            _curUrlToControl[i].c_str() ,                         // data to send
-            _curUrlToControl[i].length() * sizeof(char),  // length of data to send (bytes)
-            &numBytesWritten,               // will store actual amount of data sent
-            NULL                            // not using overlapped IO
-            );
+    //
+    //DWORD numBytesWritten = 0;
 
-        if (!result) {
-            fprintf(stderr, "Failed to send data. Error code: [%u]\n", GetLastError());
-        }
-    }
+    //_logger.log("INFO: Sending data to injected dll.");
+    //for (int i = 0; i < _curUrlToControl.size(); ++i) {
+    //    // This call blocks until a client process reads all the data
+    //    result = WriteFile(
+    //        pipe,                           // handle to our outbound pipe
+    //        _curUrlToControl[i].c_str() ,                         // data to send
+    //        _curUrlToControl[i].length() * sizeof(char),  // length of data to send (bytes)
+    //        &numBytesWritten,               // will store actual amount of data sent
+    //        NULL                            // not using overlapped IO
+    //        );
+
+    //    if (!result) {
+    //        _logger.log("ERROR: Failed to send data. Error code: [%u]\n", GetLastError());
+    //    }
+    //}
+    //_logger.log("INFO: Restricted urls sended.");
     // Close the pipe (automatically disconnects client too)
-    CloseHandle(pipe);
+    //CloseHandle(pipe);
     return 0;
 }
 
 void ProcController::hookBrowsers()
 {
-    fprintf(stderr, "Hi");
     const int maxSize = 500; //max process name length
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
     PROCESSENTRY32 pEntry;
