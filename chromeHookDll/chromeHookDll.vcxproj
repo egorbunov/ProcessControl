@@ -69,8 +69,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>minhook\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>minhook\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\minhook\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\minhook\include;$(IncludePath)</IncludePath>
     <TargetName>browserHook86</TargetName>
     <OutDir>..\ProcessControl\indlls\Debug\</OutDir>
   </PropertyGroup>
@@ -82,8 +82,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>minhook\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>minhook\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\minhook\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\minhook\include;$(IncludePath)</IncludePath>
     <TargetName>chromeHook86</TargetName>
     <OutDir>..\ProcessControl\indlls\</OutDir>
   </PropertyGroup>
