@@ -408,64 +408,80 @@ int ProcController::editProgress(string& name, int newProgress)
             return 0;
         }
     }
+    return 1;
+}
+
+int ProcController::createSessionSharedFiles() {
+    const size_t MAX_DIGIT_NUMBER = 5;
+    char sharedSizeFileName[] = "Global\\ProcessControlAppSizes";
+
+    int size = 0;
+    for (int i = 0; i < _curUrlToControl.size(); ++i) {
+        size += _curUrlToControl[i].size() + 1 + MAX_DIGIT_NUMBER + 1;
+    }
+
+    // creating file with sizes 
+
+    _logger.log("INFO: creating file with size of restricted urls");
+    /*
+    (MAX_DIGIT_NUMBER + 1) * (2) - number of symbols (bytes) in first shared file.
+    First shared file will store:
+    1) Number of bytes to store all urls and their lengths separated by '\n' symbol
+    2) Number of urls
+    One number in one line.
+    I suppose that every line of the file can have max length = (MAX_DIGIT_NUMBER + 1)
+    */
+    if (!_mmfileSizes.create(sharedSizeFileName, (MAX_DIGIT_NUMBER + 1) * 2)) {
+        _logger.log("ERROR: cannot create shared file for size of urls.");
+        return 1;
+    }
+    char num[MAX_DIGIT_NUMBER];
+    itoa(size, num, 10);
+    _mmfileSizes.writeLine(num);
+    itoa(_curUrlToControl.size(), num, 10);
+    _mmfileSizes.writeLine(num);
+
+    // creating file with urls
+
+    char sharedUrlsFilename[] = "Global\\ProcessControlAppRestrictedURLS";
+    if (!_mmfileUrls.create(sharedUrlsFilename, size)) {
+        _logger.log("ERROR: cannot create shared file for urls.");
+        return 1;
+    }
+    for (int i = 0; i < _curUrlToControl.size(); ++i) {
+        itoa(_curUrlToControl[i].length(), num, 10);
+        _mmfileUrls.writeLine(num);
+        _mmfileUrls.writeLine(_curUrlToControl[i].c_str());
+    }
+
+   /* my_shared_mem::MemMappedFile test;
+    bool ans = test.openExisting(sharedSizeFileName, (MAX_DIGIT_NUMBER + 1) * 2, FILE_MAP_READ);
+    int sz, cnt;
+    test.readInt(&sz);
+    test.readInt(&cnt);
+
+    test.close();
+    ans = test.openExisting(sharedUrlsFilename, sz, FILE_MAP_READ);
+    int x;
+    for (int i = 0; i < cnt; ++i) {
+        test.readInt(&x);
+    }*/
+    return 0;
+    
+}
+
+void ProcController::destroySessionSharedFiles() {
+    _mmfileSizes.close();
+    _mmfileUrls.close();
 }
 
 int ProcController::hookBrowserProcess(unsigned long pId)
 {
     _logger.log("INFO: Injecting dll into process : %lu", pId);
-    // injecting dll into process with id - pId
     if (_dllInjector.inject(pId, _dll86name)) {
         _logger.log("ERROR: Cannot inject dll.");
         return 1;
     }
-    //// Create a pipe to send data
-    //_logger.log("Creating a named pipe. %i", 10);
-    //HANDLE pipe = CreateNamedPipeA(
-    //    "\\\\.\\pipe\\my_restricted_urls_pipe", // name of the pipe
-    //    PIPE_ACCESS_OUTBOUND, // 1-way pipe -- send only
-    //    PIPE_TYPE_BYTE, // send data as a byte stream
-    //    1, // only allow 1 instance of this pipe
-    //    0, // no outbound buffer
-    //    0, // no inbound buffer
-    //    0, // use default wait time
-    //    NULL // use default security attributes
-    //    );
-
-    //if (pipe == NULL || pipe == INVALID_HANDLE_VALUE) {
-    //    _logger.log("ERROR: Failed to create outbound pipe instance. Error code: [%u]\n", GetLastError());
-    //    return 1;
-    //}
-
-    //_logger.log("INFO: Waiting for browser process connects to the pipe.");
-    //// This call blocks until a client process connects to the pipe
-    //BOOL result = ConnectNamedPipe(pipe, NULL);
-    //if (!result) {
-    //    _logger.log("ERROR: Failed to make connection on named pipe. Error code: [%u]\n", GetLastError());
-    //    CloseHandle(pipe); // close the pipe
-    //    return 1;
-    //}
-
-    //
-    //DWORD numBytesWritten = 0;
-
-    //_logger.log("INFO: Sending data to injected dll.");
-    //for (int i = 0; i < _curUrlToControl.size(); ++i) {
-    //    // This call blocks until a client process reads all the data
-    //    result = WriteFile(
-    //        pipe,                           // handle to our outbound pipe
-    //        _curUrlToControl[i].c_str() ,                         // data to send
-    //        _curUrlToControl[i].length() * sizeof(char),  // length of data to send (bytes)
-    //        &numBytesWritten,               // will store actual amount of data sent
-    //        NULL                            // not using overlapped IO
-    //        );
-
-    //    if (!result) {
-    //        _logger.log("ERROR: Failed to send data. Error code: [%u]\n", GetLastError());
-    //    }
-    //}
-    //_logger.log("INFO: Restricted urls sended.");
-    // Close the pipe (automatically disconnects client too)
-    //CloseHandle(pipe);
     return 0;
 }
 
@@ -514,5 +530,13 @@ void ProcController::hookBrowsers()
     {
         _hookedPids.insert(*it);
         hookBrowserProcess(*it);
-    }  
+    } 
+}
+
+void ProcController::init() {
+    this->createSessionSharedFiles();
+}
+
+void ProcController::uninit() {
+    this->destroySessionSharedFiles();
 }

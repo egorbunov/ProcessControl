@@ -23,7 +23,7 @@ void Logger::log(const char *format, ...) {
     va_start(arguments, format);
     vfprintf(pfile_, format, arguments);
     va_end(arguments);
-    fprintf(pfile_, "\n");
+    fprintf(pfile_, " | PROCESS: [%i]\n", GetCurrentProcessId());
     
 
     fclose(pfile_);

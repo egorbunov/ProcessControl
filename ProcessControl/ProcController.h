@@ -19,6 +19,7 @@
 #include <sstream>
 #include <iostream>
 
+#include "memmapfile.h"
 #include "dllinjector.h"
 #include "Logger.h"
 
@@ -82,6 +83,9 @@ class ProcController
 
     set<DWORD> _hookedPids;
 
+    my_shared_mem::MemMappedFile _mmfileSizes;
+    my_shared_mem::MemMappedFile _mmfileUrls;
+
     int loadMods();
 
     int rewriteModeFile();
@@ -93,6 +97,9 @@ class ProcController
     int hookBrowserProcess(unsigned long pId);
 
     void hookBrowsers();
+
+    int createSessionSharedFiles();
+    void destroySessionSharedFiles();
 public:
 
     /// <summary>
@@ -139,6 +146,10 @@ public:
     int setSessionMode(string &name);
 
     int control();
+
+    void init();
+
+    void uninit();
 
     string getActiveModeName();
 

@@ -11,6 +11,7 @@
 #include <WinInet.h>
 
 #include "Logger.h"
+#include "memmapfile.h"
 
 
 // ------------------ LIBRARIES -----------------------
@@ -31,10 +32,12 @@
 
 
 // ----------------------------------- GLOBALS -----------------------------------------------
-static char **g_restrSitesArray;
-static int g_numberOfSites;
+char **g_urls;
+int g_urlNum;
+char g_logfilename[100] = "F:\\gitmain\\ProcessControlProj\\ProcessControl\\ProcessControl\\logging\\dll_log";
+Logger *g_logger;
+bool g_isReady;
 
-static const char *g_logfilename = "F:\\gitmain\\ProcessControlProj\\ProcessControl\\ProcessControl\\logging\\dll_log.txt";
 
 
 //----------------------------------------- GET ADDR INFO HOOK FUNC-------------------------------------------
@@ -52,103 +55,79 @@ __declspec(dllexport) int WINAPI MyGetAddrInfo(_In_opt_  PCSTR pNodeName,
 {
     int compareAns = 0;
 
-    for (int i = 0; i < g_numberOfSites; ++i) {
-        if (strcmp(pNodeName, g_restrSitesArray[i]) == 0) {
-            Sleep(100);
-            SetLastError(WSAHOST_NOT_FOUND);
-            return WSAHOST_NOT_FOUND;
+    if (g_isReady == true && g_urlNum != NULL) {
+        for (int i = 0; i < g_urlNum; ++i) {
+            if (g_urls[i] != NULL) {
+                if (strcmp(pNodeName, g_urls[i]) == 0) {
+                    g_logger->log("INFO: site blocked [%s]", g_urls[i]);
+                    SetLastError(WSAHOST_NOT_FOUND);
+                    return WSAHOST_NOT_FOUND;
+                }
+            }
         }
     }
     return mGetAddrInfo(pNodeName, pServiceName, pHints, ppResult);
 }
 
 
-////----------------------------------------- CONNECT HOOK FUNC-------------------------------------------
-//typedef int(*CONNECT)(_In_  SOCKET, _In_  const struct sockaddr*, _In_  int);
-//
-//CONNECT fpConnect = NULL;
-//
-//int detourConnect(_In_  SOCKET s, _In_  const struct sockaddr *name, _In_  int namelen)
-//{
-//    return fpConnect(s, name, namelen);
-//}
-
-
 int readRestrictedUrls()
 {
-    // Open the named pipe
-    // Most of these parameters aren't very relevant for pipes.
+    const size_t MAX_DIGIT_NUMBER = 5;
+    static const char *sharedFileWithSizesName = "Global\\ProcessControlAppSizes";
+    static const char *sharedFileWithUrlsName = "Global\\ProcessControlAppRestrictedURLS";
+
+    // reading sizes
+    my_shared_mem::MemMappedFile mmfileSizes;
+    g_logger->log("INFO: opening shared file with size.");
+    if (!mmfileSizes.openExisting(sharedFileWithSizesName, (MAX_DIGIT_NUMBER + 1) * 2, FILE_MAP_READ)) {
+        g_logger->log("ERROR: cannot open shared file for size of urls, error code : [%i]", GetLastError());
+        return 1;
+    }
+    int urlsFileSize;
+    if (!mmfileSizes.readInt(&urlsFileSize)) {
+        g_logger->log("ERROR: cannot read size from shared file, error code : [%i]", GetLastError());
+        return 1;
+    }
+    int urlNum;
+    if (!mmfileSizes.readInt(&urlNum)) {
+        g_logger->log("ERROR: cannot read number of urls from shared file, error code : [%i]", GetLastError());
+        return 1;
+    }
+
+    g_logger->log("INFO: size = %i", urlsFileSize);
+    g_logger->log("INFO: number of urls = %i", urlNum);
     
-    //MessageBox(
-    //    NULL,
-    //    "HERE!!!!",
-    //    "INFO",
-    //    MB_OK
-    //    );
+    mmfileSizes.close();
 
-    //HANDLE pipe = CreateFile(
-    //    "\\\\.\\pipe\\my_restricted_urls_pipe",
-    //    GENERIC_READ,                                 // only need read access
-    //    FILE_SHARE_READ | FILE_SHARE_WRITE,
-    //    NULL,
-    //    OPEN_EXISTING,
-    //    FILE_ATTRIBUTE_NORMAL,
-    //    NULL
-    //    );
+    // reading urls
+    my_shared_mem::MemMappedFile mmfileUrls(g_logger);
+    g_logger->log("INFO: opening shared file with urls.");
+    bool res = mmfileUrls.openExisting(sharedFileWithUrlsName, urlsFileSize, FILE_MAP_READ);
 
-    //if (pipe == INVALID_HANDLE_VALUE) {
-    //    logger.log("Error: cannot connect to pipe");
-    //    return 1;
-    //}
+    if (!res) {
+        g_logger->log("ERROR: cannot open shared file with urls, error code : [%i]", GetLastError());
+        return 1;
+    }
 
-    //// The read operation will block until there is data to read
-    //char buffer[MAX_BUFFER_SIZE + 1];
-    //DWORD numBytesRead = 0;
-    //int cur_mem_size = INIT_URL_NUM;
-    //char** buf;
-    //g_numberOfSites = 0;
+    g_urls = new char*[urlNum];
+    int curSize;
+    for (int i = 0; i < urlNum; ++i) {
+        if (!mmfileUrls.readInt(&curSize)) {
+            g_logger->log("ERROR: cannot read url length from shared file with urls, error code : [%i]", GetLastError());
+            return 1;
+        }
+        g_urls[i] = new char[curSize + 1];
+        if (mmfileUrls.readLine(g_urls[i]) == NULL) {
+            g_logger->log("ERROR: cannot read url from shared file with urls, error code : [%i]", GetLastError());
+            return 1;
+        }
+        g_logger->log("INFO: Url read = '%s'", g_urls[i]);
+    }
 
-    //g_restrSitesArray = (char** ) malloc(INIT_URL_NUM * sizeof(char* ));
-    //while (true)
-    //{
-    //    BOOL result = ReadFile(
-    //        pipe,
-    //        buffer,                                 // the data from the pipe will be put here
-    //        (MAX_BUFFER_SIZE - 1) * sizeof(char),   // number of bytes allocated
-    //        &numBytesRead,                          // this will store number of bytes actually read
-    //        NULL                                    // not using overlapped IO
-    //        );
+    mmfileUrls.close();
 
-    //    if (result) {
-    //        buffer[numBytesRead / sizeof(char)] = '\0'; // null terminate the string
-    //        g_numberOfSites += 1;
-
-    //        logger.log("Info: URL readed from pipe = ");
-    //        logger.log(buffer);
-
-    //        if (cur_mem_size < g_numberOfSites) {
-    //            buf = (char** ) realloc(g_restrSitesArray, (cur_mem_size + INIT_URL_NUM) * sizeof(char* ));
-
-    //            cur_mem_size += INIT_URL_NUM;
-
-    //            if (buf != NULL) {
-    //                g_restrSitesArray = buf;
-    //            }
-    //            else {
-    //                logger.log("Error: cannot reallocate url's array");
-    //                return 1;
-    //            }
-    //        }
-    //        g_restrSitesArray[g_numberOfSites - 1] = (char* ) malloc(numBytesRead + 2);
-    //        strcpy_s(g_restrSitesArray[g_numberOfSites - 1], numBytesRead + 1, buffer);
-    //    }
-    //    else {
-    //        return 1;
-    //    }
-    //}
-
-    //// Close our pipe handle
-    //CloseHandle(pipe);
+    g_urlNum = urlNum;
+    g_isReady = true;
 
     return 0;
 }
@@ -157,22 +136,30 @@ int readRestrictedUrls()
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 {
     if (dwReason == DLL_PROCESS_ATTACH) {
-        Logger logger(g_logfilename, true);
-        logger.log("INFO: Dll attach.");
-        // reading urls from pipe, which is opened by Process Control process
+        g_isReady = false;
+        unsigned long pid = GetCurrentProcessId(); // hope process id will fit in integer
+        char strpid[12];
+        _ultoa_s(pid, strpid, 10);
+        strcat_s(g_logfilename, strpid);
+        strcat_s(g_logfilename, ".txt");
+        g_logger = new Logger(g_logfilename, true);
+
+        g_logger->log("INFO: Dll process attach.");
+
         readRestrictedUrls();
 
+        g_logger->log("INFO: initializing hook");
         // Creating a HOOK
         if (MH_Initialize() != MH_OK) {
-            logger.log("ERROR: Cannot initialize minhook!");
+            g_logger->log("ERROR: Cannot initialize minhook!");
             return 1;
         }
         if (MH_CreateHook(&getaddrinfo, &MyGetAddrInfo, reinterpret_cast<void**>(&mGetAddrInfo)) != MH_OK) {
-            logger.log("INFO: Cannot create hook!");
+            g_logger->log("INFO: Cannot create hook!");
             return 1;
         }
         if (MH_EnableHook(&getaddrinfo) != MH_OK) {
-            logger.log("INFO: Cannot enable hook!");
+            g_logger->log("INFO: Cannot enable hook!");
             return 1;
         }
 
@@ -181,23 +168,24 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
         //if (MH_EnableHook(&connect) != MH_OK)
         //    return 1;
 
-    } else if (dwReason == DLL_PROCESS_DETACH) {
-        Logger logger(g_logfilename);
-        logger.log("INFO: Dll detach.");
+    }
+    else if (dwReason == DLL_THREAD_ATTACH) {
+        g_logger->log("INFO: Dll thread attach.");
+    }
+    else if (dwReason == DLL_PROCESS_DETACH) {
+        g_logger->log("INFO: Dll detach.");
 
-        if (g_restrSitesArray != NULL) {
-            free(g_restrSitesArray);
-        }
         if (MH_DisableHook(&getaddrinfo) != MH_OK) {
-            logger.log("ERROR: Cannot disable hook!");
+            g_logger->log("ERROR: Cannot disable hook!");
             return 1;
         }
 
         if (MH_Uninitialize() != MH_OK) {
-            logger.log("ERROR: Cannot uninit minhook!");
+            g_logger->log("ERROR: Cannot uninit minhook!");
             return 1;
         }
-    }
 
+        //delete g_logger;
+    }
     return TRUE;
 }

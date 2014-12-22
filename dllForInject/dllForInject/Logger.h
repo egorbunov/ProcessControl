@@ -1,3 +1,6 @@
+#ifndef LOGGER_H_INCLUDED__
+#define LOGGER_H_INCLUDED__
+
 #ifdef LOGGER_EXPORTS
 #define LOGGERDLL_API __declspec(dllexport) 
 #else
@@ -7,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <Windows.h>
 
 class Logger {
 private:
@@ -17,3 +21,5 @@ public:
     ~Logger();
     void log(const char *format, ...);
 };
+
+#endif

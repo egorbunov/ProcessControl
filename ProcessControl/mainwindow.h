@@ -26,12 +26,9 @@
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
     //model part
 private:
     ProcController processController; //main process controller, it sends all data to ui.
-
-
     //view part
 public:
     MainWindow(QWidget *parent = 0);
@@ -79,7 +76,7 @@ private:
     ModeCreationDialog *modeCrDlg;
     EndSessionDialog *endSessionDlg;
     QSystemTrayIcon *trayIcon;
-    QMenu *trayIconMenu; //it's useless for now
+    QMenu *trayIconMenu; //it's useless for now, TODO: do something with that
     QStandardItemModel *modeModel; //model with modes, list
 
     QTimer *sessionTimer;

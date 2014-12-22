@@ -76,7 +76,7 @@ MainWindow::~MainWindow()
     delete modeCrDlg;
     delete modeModel;
     delete endSessionDlg;
-    delete trayIconMenu;
+    // delete trayIconMenu; // TODO: error here
     delete startTime;
 }
 
@@ -135,6 +135,7 @@ void MainWindow::setTillShutdownChecked(bool c)
     else
         ui.timeEdit->setEnabled(true);
 }
+
 void MainWindow::collapseToTray()
 {
     // getting name of the active mode to start session
@@ -150,6 +151,7 @@ void MainWindow::collapseToTray()
 
     // setting current session mode
     this->processController.setSessionMode(name);
+    this->processController.init();
 
     // starting timer for control stabs - every CONTOL_STAB ms it will run function
     // for stopping restricted programs and injecting dll with restriction into browsers
@@ -299,6 +301,7 @@ int MainWindow::controlStab()
 
 int MainWindow::endSession()
 {
+    this->processController.uninit();
     this->show();
     trayIcon->setVisible(false);
     trayIcon->hide();

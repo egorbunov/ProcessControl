@@ -1,14 +1,14 @@
 #ifndef MODE_CREATION_DIALOG_H_INCLUDED__
-#define  MODE_CREATION_DIALOG_H_INCLUDED__
+#define MODE_CREATION_DIALOG_H_INCLUDED__
 
 #include <qdialog.h>
 #include <QtGui/QStandardItemModel>
-#include "ui_modecreationdialog.h"
 #include <string>
 #include <vector>
 #include <QFileDialog>
 #include <QMessageBox>
 #include "urleditdialog.h"
+#include "ui_modecreationdialog.h"
 
 using std::vector;
 using std::string;
