@@ -71,16 +71,10 @@
     <ClCompile Include="sources\endsessiondialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sources\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\mainwindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\memmapfile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\ModeCreationDialog.cpp">
@@ -100,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_modecreationdialog.cpp">
       <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonUtils\sources\Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonUtils\sources\memmapfile.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -141,12 +141,6 @@
     <ClInclude Include="headers\dllinjector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="headers\Logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\memmapfile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="headers\ProcController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -164,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_urleditdialog.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonUtils\headers\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonUtils\headers\memmapfile.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

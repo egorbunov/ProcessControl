@@ -41,6 +41,7 @@
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IncludePath>headers;$(IncludePath)</IncludePath>
     <LibraryPath>$(QTDIR)\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
@@ -81,6 +82,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\commonUtils\sources\Logger.cpp" />
+    <ClCompile Include="..\commonUtils\sources\memmapfile.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_endsessiondialog.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -125,23 +128,21 @@
     </ClCompile>
     <ClCompile Include="sources\dllinjector.cpp" />
     <ClCompile Include="sources\endsessiondialog.cpp" />
-    <ClCompile Include="sources\Logger.cpp" />
     <ClCompile Include="sources\main.cpp" />
     <ClCompile Include="sources\mainwindow.cpp" />
-    <ClCompile Include="sources\memmapfile.cpp" />
     <ClCompile Include="sources\ModeCreationDialog.cpp" />
     <ClCompile Include="sources\modelistitemdelegate.cpp" />
     <ClCompile Include="sources\ProcController.cpp" />
     <ClCompile Include="sources\urleditdialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\commonUtils\headers\Logger.h" />
+    <ClInclude Include="..\commonUtils\headers\memmapfile.h" />
     <ClInclude Include="GeneratedFiles\ui_endsessiondialog.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="GeneratedFiles\ui_modecreationdialog.h" />
     <ClInclude Include="GeneratedFiles\ui_urleditdialog.h" />
     <ClInclude Include="headers\dllinjector.h" />
-    <ClInclude Include="headers\Logger.h" />
-    <ClInclude Include="headers\memmapfile.h" />
     <ClInclude Include="headers\ProcController.h" />
     <ClInclude Include="headers\resource.h" />
     <CustomBuild Include="headers\urleditdialog.h">

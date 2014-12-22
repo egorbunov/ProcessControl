@@ -19,9 +19,10 @@
 #include <sstream>
 #include <iostream>
 
-#include "memmapfile.h"
+#include "../../commonUtils/headers/memmapfile.h"
+#include "../../commonUtils/headers/Logger.h"
 #include "dllinjector.h"
-#include "Logger.h"
+
 
 using std::vector;
 using std::string;

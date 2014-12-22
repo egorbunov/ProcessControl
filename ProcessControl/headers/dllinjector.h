@@ -12,7 +12,7 @@
 #include <iostream>
 #include <cwchar>
 #include <string>
-#include "Logger.h"
+#include "../../commonUtils/headers/Logger.h"
 
 class DllInjector
 {

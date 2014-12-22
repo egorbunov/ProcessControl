@@ -1,13 +1,12 @@
-#include "memmapfile.h"
+#include "../headers/memmapfile.h"
 
-my_shared_mem::MemMappedFile::MemMappedFile(Logger *logger) {
+my_shared_mem::MemMappedFile::MemMappedFile() {
     hMapFile = NULL;
     curPosition = -1;
     writePosition = 0;
     size = 0;
     view = NULL;
     buffer = NULL;
-    this->logger = logger;
 }
 
 /// <summary>
@@ -57,34 +56,28 @@ bool my_shared_mem::MemMappedFile::create(const char *name, size_t size) {
 bool my_shared_mem::MemMappedFile::openExisting(const char *name, size_t size, int flags) {
     buffer = new char[size];
 
-    if (logger != NULL) logger->log("INFO: opening file mapping!");
     hMapFile = OpenFileMappingA(
         flags,   // read/write access
         FALSE,                 // do not inherit the name
         name);               // name of mapping object
 
-    if (hMapFile == NULL) {
+    if (hMapFile == NULL)
         return false;
-    }
 
-    if (logger != NULL) logger->log("INFO: mapping view!");
     void *pBuf = MapViewOfFile(hMapFile, // handle to map object
                                flags,
                                0,
                                0,
                                size);
 
-    if (pBuf == NULL) {
+    if (pBuf == NULL)
         return false;
-    }
 
-    if (logger != NULL) logger->log("INFO: sprintf!");
-    if (sprintf_s(buffer, size, "%s", pBuf) < 0) {
+    if (sprintf_s(buffer, size, "%s", pBuf) < 0)
         return false;
-    }
 
     curPosition = 0;
-    if (logger != NULL) logger->log("INFO: okay!!!");
+
     return true;
 }
 
@@ -96,11 +89,13 @@ bool my_shared_mem::MemMappedFile::openExisting(const char *name, size_t size, i
 /// <returns>NULL if error occured, valid pointer 
 /// if else (dest points to the same mem. location) </returns>
 char* my_shared_mem::MemMappedFile::readLine(char *dest) {
-    if (buffer == NULL || dest == NULL)
+    if (buffer == NULL)
         return NULL;
 
     int i = 0;
     while (curPosition < (int)strlen(buffer) && buffer[curPosition] != '\n') {
+        if (dest == NULL || (int)strlen(dest) < i + 1)
+            return NULL;
         dest[i++] = buffer[curPosition++];
     }
     ++curPosition;

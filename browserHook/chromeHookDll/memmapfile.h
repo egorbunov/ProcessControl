@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
-#include "Logger.h"
 
 
 namespace my_shared_mem {
@@ -19,11 +18,10 @@ namespace my_shared_mem {
         int curPosition;
         int writePosition;
         char *buffer;
-        Logger *logger;
 
 
     public:
-        MemMappedFile(Logger *logger = NULL);
+        MemMappedFile();
         ~MemMappedFile();
         bool create(const char *name, size_t size);
         bool openExisting(const char *name, size_t size, int flags = FILE_MAP_ALL_ACCESS);

@@ -4,21 +4,20 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
-#include "MinHook.h"
 #include <stdio.h>
 #include <conio.h>
 #include <tchar.h>
 #include <WinInet.h>
 
-#include "Logger.h"
-#include "memmapfile.h"
+#include "MinHook.h"
+#include "../../commonUtils/headers/Logger.h"
+#include "../../commonUtils/headers/memmapfile.h"
 
 
 // ------------------ LIBRARIES -----------------------
-#pragma comment(lib, "user32.lib")
 // link with Ws2_32.lib
-#pragma comment (lib, "Ws2_32.lib")
-#pragma comment (lib, "Wininet.lib")
+#pragma comment (lib, "Ws2_32.lib") // getaddrinfo
+
 #if defined _M_X64
 #pragma comment(lib, "libMinHook.x64.lib")
 #elif defined _M_IX86
@@ -100,7 +99,7 @@ int readRestrictedUrls()
     mmfileSizes.close();
 
     // reading urls
-    my_shared_mem::MemMappedFile mmfileUrls(g_logger);
+    my_shared_mem::MemMappedFile mmfileUrls;
     g_logger->log("INFO: opening shared file with urls.");
     bool res = mmfileUrls.openExisting(sharedFileWithUrlsName, urlsFileSize, FILE_MAP_READ);
 

@@ -1,8 +1,14 @@
 #ifndef MEMMAPFILE_H_INCLUDED__
 #define MEMMAPFILE_H_INCLUDED__
 
-#include <cstdio>
-#include <cstdlib>
+#ifdef MEMMAPFILE_EXPORTS
+#define MEMMAPFILE_API __declspec(dllexport) 
+#else
+#define MEMMAPFILE_API __declspec(dllimport)
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
 
 namespace my_shared_mem {
