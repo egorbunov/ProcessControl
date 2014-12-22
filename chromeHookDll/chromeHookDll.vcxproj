@@ -164,7 +164,7 @@
   <ItemGroup>
     <ClCompile Include="..\commonUtils\sources\Logger.cpp" />
     <ClCompile Include="..\commonUtils\sources\memmapfile.cpp" />
-    <ClCompile Include="browserHookMain.cpp" />
+    <ClCompile Include="sources\browserHookMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\commonUtils\headers\Logger.h" />

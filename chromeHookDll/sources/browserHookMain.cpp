@@ -10,8 +10,8 @@
 #include <WinInet.h>
 
 #include "MinHook.h"
-#include "../commonUtils/headers/Logger.h"
-#include "../commonUtils/headers/memmapfile.h"
+#include "../../commonUtils/headers/Logger.h"
+#include "../../commonUtils/headers/memmapfile.h"
 
 
 // ------------------ LIBRARIES -----------------------
