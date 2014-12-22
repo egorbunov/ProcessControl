@@ -72,6 +72,7 @@
     <LibraryPath>minhook\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>minhook\include;$(IncludePath)</IncludePath>
     <TargetName>browserHook86</TargetName>
+    <OutDir>..\ProcessControl\indlls\Debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -84,7 +85,7 @@
     <LibraryPath>minhook\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>minhook\include;$(IncludePath)</IncludePath>
     <TargetName>chromeHook86</TargetName>
-    <OutDir>..\..\ProcessControl\indlls\</OutDir>
+    <OutDir>..\ProcessControl\indlls\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -161,13 +162,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\commonUtils\sources\Logger.cpp" />
-    <ClCompile Include="..\..\commonUtils\sources\memmapfile.cpp" />
+    <ClCompile Include="..\commonUtils\sources\Logger.cpp" />
+    <ClCompile Include="..\commonUtils\sources\memmapfile.cpp" />
     <ClCompile Include="browserHookMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\commonUtils\headers\Logger.h" />
-    <ClInclude Include="..\..\commonUtils\headers\memmapfile.h" />
+    <ClInclude Include="..\commonUtils\headers\Logger.h" />
+    <ClInclude Include="..\commonUtils\headers\memmapfile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
