@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/ModeCreationDialog">
-        <file>Resources/add.ico</file>
-        <file>Resources/delete.ico</file>
-        <file>Resources/qss/coffe.qss</file>
-    </qresource>
-</RCC>
