@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessControl", "ProcessCo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chromeHookDll", "chromeHookDll\chromeHookDll.vcxproj", "{F44F75F1-80ED-4169-9189-BA7166C6F89A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "taskmgrHookDll", "taskmgrHookDll\taskmgrHookDll.vcxproj", "{8C99219D-6C94-454F-881A-88492A552A39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -17,18 +19,22 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|Win32.Build.0 = Debug|Win32
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.ActiveCfg = Debug|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Debug|x64.Build.0 = Debug|x64
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.ActiveCfg = Release|Win32
 		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|Win32.Build.0 = Release|Win32
-		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|Win32
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.ActiveCfg = Release|x64
+		{B12702AD-ABFB-343A-A199-8E24837244A3}.Release|x64.Build.0 = Release|x64
 		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Debug|Win32.ActiveCfg = Release|Win32
-		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Debug|Win32.Build.0 = Release|Win32
-		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Debug|x64.ActiveCfg = Debug|x64
-		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Debug|x64.Build.0 = Debug|x64
+		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Debug|x64.ActiveCfg = Release|Win32
+		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Debug|x64.Build.0 = Release|Win32
 		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Release|Win32.ActiveCfg = Release|Win32
-		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Release|Win32.Build.0 = Release|Win32
 		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Release|x64.ActiveCfg = Release|x64
-		{F44F75F1-80ED-4169-9189-BA7166C6F89A}.Release|x64.Build.0 = Release|x64
+		{8C99219D-6C94-454F-881A-88492A552A39}.Debug|Win32.ActiveCfg = Release|Win32
+		{8C99219D-6C94-454F-881A-88492A552A39}.Debug|x64.ActiveCfg = Release|Win32
+		{8C99219D-6C94-454F-881A-88492A552A39}.Debug|x64.Build.0 = Release|Win32
+		{8C99219D-6C94-454F-881A-88492A552A39}.Release|Win32.ActiveCfg = Release|Win32
+		{8C99219D-6C94-454F-881A-88492A552A39}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

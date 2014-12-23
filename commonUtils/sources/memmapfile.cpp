@@ -25,7 +25,7 @@ bool my_shared_mem::MemMappedFile::create(const char *name, size_t size) {
         NULL,                    // default security
         PAGE_READWRITE,          // read/write access
         0,                       // maximum object size (high-order DWORD)
-        size,                    // maximum object size (low-order DWORD)
+        (DWORD) size,                    // maximum object size (low-order DWORD)
         name);           // name of mapping object
 
     if (hMapFile == NULL)

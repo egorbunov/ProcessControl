@@ -23,7 +23,7 @@ void Logger::log(const char *format, ...) {
     // adding prefix
     const int addLen = 25; // additional length for prefix
     const int ulongDigitNum = 15; // just enough
-    int len = strlen(format) + addLen;
+    int len = (int) strlen(format) + addLen;
     char* newFormat = new char[strlen(format) + addLen];
     char prefix[addLen] = "[";
     char strpid[ulongDigitNum];

@@ -66,6 +66,8 @@ private:
 
     static const string CHROME_HOOK_DLL_86;
     static const string CHROME_HOOK_DLL_64;
+    static const string TASKMGR_HOOK_DLL_86;
+    static const string TASKMGR_HOOK_DLL_64;
     static const string CONTROLLED_BROWSERS[];
     static const string CONTROLLED_TASKMANAGERS[];
 

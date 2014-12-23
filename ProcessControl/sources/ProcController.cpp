@@ -2,8 +2,10 @@
 
 // ----------- Constants --------------
 
-const string ProcController::CHROME_HOOK_DLL_86 = "indlls\\chromeHook86.dll";
-const string ProcController::CHROME_HOOK_DLL_64 = "indlls\\chromeHook64.dll"; // TODO: do I need this?
+const string ProcController::CHROME_HOOK_DLL_86 = "indlls\\chromeHookDll86.dll";
+const string ProcController::CHROME_HOOK_DLL_64 = "indlls\\chromeHookDll64.dll"; // TODO: do I need this?
+const string ProcController::TASKMGR_HOOK_DLL_86 = "indlls\\taskmgrHookDll86.dll";
+const string ProcController::TASKMGR_HOOK_DLL_64 = "indlls\\taskmgrHookDll64.dll";
 
 const string ProcController::CONTROLLED_BROWSERS[] = { "chrome.exe" };
 const string ProcController::CONTROLLED_TASKMANAGERS[] = { "taskmgr.exe" };
@@ -309,13 +311,14 @@ int ProcController::control()
     }
     CloseHandle(hSnapShot);
 
+    vector<DWORD> tmp;
     vector<DWORD> closedIds;
     vector<DWORD> browsersForHookIds;
     vector<DWORD> taskmngrsForHookIds;
 
     // getting browsers and taskmng process ids, which already closed
     set_difference(_hookedPids.begin(), _hookedPids.end(), openedBrowsersIds.begin(), openedBrowsersIds.end(),
-                   inserter(closedIds, closedIds.end()));
+                   inserter(tmp, tmp.end()));
     set_difference(closedIds.begin(), closedIds.end(), openedTaskmngrsIds.begin(), openedTaskmngrsIds.end(),
                    inserter(closedIds, closedIds.end()));
 
@@ -432,12 +435,17 @@ void ProcController::_destroySessionSharedFiles() {
 }
 
 int ProcController::_hookTaskmanagerProcess(unsigned long pId) {
+    _logger.log("INFO: Injecting dll %s into task manager process : %lu",TASKMGR_HOOK_DLL_86.c_str(), pId);
+    if (_dllInjector.inject(pId, TASKMGR_HOOK_DLL_86)) {
+        _logger.log("ERROR: Cannot inject dll.");
+        return 1;
+    }
     return 0;
 }
 
 int ProcController::_hookBrowserProcess(unsigned long pId)
 {
-    _logger.log("INFO: Injecting dll into process : %lu", pId);
+    _logger.log("INFO: Injecting dll %s into browser process : %lu", CHROME_HOOK_DLL_86.c_str(), pId);
     if (_dllInjector.inject(pId, CHROME_HOOK_DLL_86)) {
         _logger.log("ERROR: Cannot inject dll.");
         return 1;
