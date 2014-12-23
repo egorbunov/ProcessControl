@@ -7,8 +7,12 @@
 #include <vector>
 #include <QFileDialog>
 #include <QMessageBox>
+
 #include "urleditdialog.h"
 #include "ui_modecreationdialog.h"
+
+#include "mode.h"
+
 
 using std::vector;
 using std::string;
@@ -19,12 +23,7 @@ class ModeCreationDialog : public QDialog
 public:
     void setup();
     ModeCreationDialog(QWidget *parent);
-    ModeCreationDialog(string &name,
-        string &description,
-        vector<string> &procToControl,
-        vector<string> &urlToControl,
-        short &progress,
-        QWidget *parent);
+    ModeCreationDialog(Mode &mode, QWidget *parent);
     ~ModeCreationDialog();
 
 public slots:
@@ -47,17 +46,8 @@ private:
 
 
 signals:
-    void modeAccepted(string &name,
-        string &description,
-        vector<string> &procToControl,
-        vector<string> &urlToControl,
-        short &progress);
-    void modeEditAccepted(string &oldname,
-        string &name,
-        string &description,
-        vector<string> &procToControl,
-        vector<string> &urlToControl,
-        short &progress);
+    void modeAccepted(Mode &mode);
+    void modeEditAccepted(string &oldname, Mode &mode);
 };
 
 #endif

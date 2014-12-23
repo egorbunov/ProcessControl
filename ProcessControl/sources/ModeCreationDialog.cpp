@@ -68,58 +68,46 @@ ModeCreationDialog::ModeCreationDialog(QWidget *parent) : QDialog(parent)
 
 void ModeCreationDialog::accept()
 {
-    string name = ui.editModeName->text().toStdString();
-    string descr = ui.editDescription->text().toStdString();
-    short progress = -1;
-    if (ui.progressCheckBox->isChecked())
-        progress = ui.progressBar->value();
+    Mode mode;
+    mode.setName(ui.editModeName->text().toStdString());
+    mode.setDescription(ui.editDescription->text().toStdString());
+    mode.setProgress(ui.progressCheckBox->isChecked() ? ui.progressBar->value() : -1);
 
     vector<string> progToControl;
     vector<string> urlsToControl;
 
-    QStandardItem *item;
-    int row = progList->rowCount();
-    for (int i = 0; i < row; ++i)
-    {
-        item = progList->item(i);
-        progToControl.push_back(item->data(Qt::DisplayRole).toString().toStdString());
-    }
-    row = urlList->rowCount();
-    for (int i = 0; i < row; ++i)
-    {
-        item = urlList->item(i);
-        urlsToControl.push_back(item->data(Qt::DisplayRole).toString().toStdString());
-    }
+    for (int i = 0; i < progList->rowCount(); ++i)
+        mode.addProcess(progList->item(i)->data(Qt::DisplayRole).toString().toStdString());
+
+    for (int i = 0; i < urlList->rowCount(); ++i)
+        mode.addUrl(urlList->item(i)->data(Qt::DisplayRole).toString().toStdString());
 
     if (oldName == "")
-        emit modeAccepted(name, descr, progToControl, urlsToControl, progress);
+        emit modeAccepted(mode);
     else
-        emit modeEditAccepted(oldName, name, descr, progToControl, urlsToControl, progress);
+        emit modeEditAccepted(oldName, mode);
 }
 
-ModeCreationDialog::ModeCreationDialog(string &name,
-    string &description,
-    vector<string> &procToControl,
-    vector<string> &urlToControl,
-    short &progress,
-    QWidget *parent) : QDialog(parent)
+ModeCreationDialog::ModeCreationDialog(Mode &mode, QWidget *parent) : QDialog(parent)
 {
-    oldName = name;
+    oldName = mode.getName();
     ui.setupUi(this);
     this->setup();
 
-    ui.editModeName->setText(QString(name.c_str()));
-    ui.editDescription->setText(QString(description.c_str()));
-
+    ui.editModeName->setText(QString(mode.getName().c_str()));
+    ui.editDescription->setText(QString(mode.getDescription().c_str()));
 
     QStandardItem *item;
+    const vector<ProcessDesc> &procToControl = mode.getProcesses();
     for (int i = 0; i < procToControl.size(); ++i)
     {
         item = new QStandardItem();
-        item->setData(procToControl[i].c_str(), Qt::DisplayRole);
+        item->setData(procToControl[i].getPath().c_str(), Qt::DisplayRole);
         item->setEditable(false);
         progList->appendRow(item);
     }
+
+    const vector<string> &urlToControl = mode.getUrls();
     for (int i = 0; i < urlToControl.size(); ++i)
     {
         item = new QStandardItem();
@@ -127,10 +115,11 @@ ModeCreationDialog::ModeCreationDialog(string &name,
         item->setEditable(false);
         urlList->appendRow(item);
     }
-    if (progress != -1)
+
+    if (mode.getProgress() != -1)
     {
         this->setProgressCheked(true);
-        ui.progressBarSlider->setValue(progress);
+        ui.progressBarSlider->setValue(mode.getProgress());
         ui.progressCheckBox->setChecked(true);
     }
 }

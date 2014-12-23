@@ -1,4 +1,4 @@
-#include "urleditdialog.h"
+#include "UrlEditDialog.h"
 
 
 UrlEditDialog::UrlEditDialog(QWidget *parent)

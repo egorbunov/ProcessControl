@@ -40,18 +40,9 @@ public slots:
     void closeModeCreationDialog();
     void collapseToTray();
 
-    int addNewMode(string &name,
-        string &description,
-        vector<string> &procToControl,
-        vector<string> &urlToControl,
-        short &progress);
+    int addNewMode(Mode &mode);
 
-    int editMode(string &oldName,
-        string &newName,
-        string &newDescr,
-        vector<string> &newProcs,
-        vector<string> &newUrls,
-        short &newProgress);
+    int editMode(string &oldName, Mode &mode);
 
     int editProgress(string& name, int newProgress);
 

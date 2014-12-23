@@ -1,4 +1,4 @@
-#include "../headers/memmapfile.h"
+#include "../headers/MemMapFile.h"
 
 my_shared_mem::MemMappedFile::MemMappedFile() {
     hMapFile = NULL;

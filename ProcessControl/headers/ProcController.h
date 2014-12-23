@@ -17,66 +17,54 @@
 #include <algorithm>
 #include <iterator>
 #include <sstream>
-#include <iostream>
 
 #include "../../commonUtils/headers/memmapfile.h"
 #include "../../commonUtils/headers/Logger.h"
 #include "dllinjector.h"
+#include "mode.h"
 
 
 using std::vector;
 using std::string;
 using std::set;
 
-#define MODE_ALREADY_EXISTS_ERROR 1
-#define TOO_BIG_DESCRIPTION_ERROR 2
-#define EMPTY_LISTS_ERROR 3
-#define BAD_PROGRESS_ERROR 4
-#define BAD_NAME_ERROR 5
-#define NO_MODE_TO_EDIT 6
+#define ERROR_MODE_ALREADY_EXISTS 1
+#define ERROR_TOO_BIG_DESCRIPTION 2
+#define ERROR_EMPTY_LISTS 3
+#define ERROR_BAD_PROGRESS 4
+#define ERROR_BAD_NAME 5
+#define ERROR_NO_MODE_TO_EDIT 6
+#define ERROR_MODE_FILE_CORRUPTED 7
 
 
 class ProcController
 {
+private:
     Logger _logger;
-    struct Mode
+
+    /**
+     * @enum    ProcessType
+     *
+     * @brief   Tags for describing ids of processes.
+     *          Accordingly to that enum values in pair with pid,
+     *          program decides how to deal with process - hook it or close it, for ex.
+     */
+    enum ProcessType
     {
-        string name;
-        string description;
-        vector<string> processes;
-        vector<string> urls;
-        short progress;
+        BROWSER,
+        TASK_MANAGER
     };
 
-    static const string _dll86name;
-
-    static const string _dll64name;
+    static const string CHROME_HOOK_DLL_86;
+    static const string CHROME_HOOK_DLL_64;
 
     DllInjector _dllInjector;
 
-    /// <summary>
-    /// number of created objects of that class, I let to use only one in one program.
-    /// </summary>
-    static int _controllersCount;
+    /** @brief   Mode, which is currently chosen (if not null) */
+    Mode *_currentMode;
 
-    /// <summary>
-    /// name of file, where all mods are stored (info about allowed sites, programs, etc...)
-    /// </summary>
+    /** @brief   name of file, where all mods are stored (info about allowed sites, programs, etc...) */
     const string _modsFilename;
-
-    /// <summary>
-    ///  array with names of processes we want to control in current session
-    /// </summary>
-    vector<string> _curProcToControl;
-
-    /// <summary>
-    /// array with site names, which we want to control in current session
-    /// </summary>
-    vector<string> _curUrlToControl;
-
-    int _curProgress;
-
-    string _activeModeName;
 
     vector<Mode> _allModes;
 
@@ -89,58 +77,68 @@ class ProcController
 
     int loadMods();
 
-    int rewriteModeFile();
+    /**
+    * @fn  int ProcController::_rewriteModeFile()
+    *
+    * @brief   Rewrites the mode file. Fills file with name _modsFilename with information about
+    *          modes: 1) In the first line: %number of modes% 2) Next 5 lines describes first mode
+    *          and so on:
+    *                              %name% %descriptions% %programs separated with "|"% %urls
+    *                              separated with "|"% %progress (number)%.
+    *
+    * @author  Egor
+    * @date    23.12.2014
+    *
+    * @return  0 if ok.
+    */
+    int _rewriteModeFile();
 
-    void killProcessByName(string &filename);
+    /**
+    * @fn  void ProcController::_killProcessByName(string& processName)
+    *
+    * @brief   Kills process by process name.
+    *
+    * @param [in,out]  processName process name.
+    */
+    void _killProcessByName(string &filename);
 
-    void killControlledProcesses();
+    /**
+    * @fn  void ProcController::_killControlledProcesses()
+    *
+    * @brief   Kills all controlled by current mode processes.
+    */
+    void _killControlledProcesses();
 
-    int hookBrowserProcess(unsigned long pId);
+    int _hookBrowserProcess(unsigned long pId);
 
-    void hookBrowsers();
+    void _hookBrowsers();
 
-    int createSessionSharedFiles();
-    void destroySessionSharedFiles();
+    void _hookTaskmanagers();
+
+    int _createSessionSharedFiles();
+
+    void _destroySessionSharedFiles();
 public:
+    int getMode(string name, Mode &mode);
 
-    /// <summary>
-    /// Fills given array with names of already created mods.
-    /// </summary>
-    /// <param name="names">The names vector to fill</param>
-    /// <returns></returns>
-    int getModsNames(vector<string>& names) const;
+    int getModes(vector<Mode> &modes) const;
 
-    /// <summary>
-    /// Fills given array with desciptions of already created mods.
-    /// </summary>
-    /// <param name="descriptions">The descriptions vector to fill</param>
-    /// <returns></returns>
-    int getModsDscriprions(vector<string>& descriptions) const;
+    /**
+    * @fn  int ProcController::getModsProgress(vector<short>& progress) const
+    *
+    * @brief   Fills given array with progresses of already created mods.
+    *
+    * @param [in,out]  progress    The progresses vector to fill.
+    *
+    * @return  The mods progress.
+    */
+    int getModeProgress(string name) const;
 
-    /// <summary>
-    /// Fills given array with progresses of already created mods.
-    /// </summary>
-    /// <param name="progress">The progresses vector to fill</param>
-    /// <returns></returns>
-    int getModsProgress(vector<short>& progress) const;
+    int addNewMode(Mode mode);
 
-    /// <summary>
-    /// Fills given arrays and variables with information about mode by name
-    /// </summary>
-    /// <param name="name">Name of mode.</param>
-    /// <param name="procToControl">Array for names of processes, which are controlled by mode.</param>
-    /// <param name="urlToControl">The URL to control.</param>
-    /// <param name="progress">number (from 0 to 100) of progress for current mode, or -1 if mode has no progress.</param>
-    /// <returns>0 if it succeeds (if mode was found in list), 1 if it fails (no mode with given name).</returns>
-    int getModeInfo(string& name, string& description, vector<string>& procToControl, vector<string>& urlToControl, short& progress) const;
+    int editMode(string oldName, Mode mode);
 
-    int getModeProgress(string& name);
-
-    int addNewMode(string &name, string &description, vector<string> &procToControl, vector<string> &urlToControl, short &progress);
-
-    int editMode(string &oldName, string &newName, string &newDescr, vector<string> &newProcs, vector<string> &newUrls, short &newProgress);
-
-    int editProgress(string& name, int progress);
+    int editProgress(string name, int progress);
 
     int deleteMode(string name);
 

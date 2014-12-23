@@ -1,4 +1,4 @@
-#include "endsessiondialog.h"
+#include "EndSessionDialog.h"
 
 EndSessionDialog::EndSessionDialog(string& name, int progress, QWidget *parent) : QDialog(parent)
 {

@@ -1,15 +1,14 @@
 #include "ProcController.h"
 
-int ProcController::_controllersCount = 0;
-const string ProcController::_dll86name = "indlls\\browserHook86.dll";
+// ----------- Constants --------------
 
-// Is it useful??????????????????????????????????????????????
-const string ProcController::_dll64name = "indlls\\browserHook64.dll";
+const string ProcController::CHROME_HOOK_DLL_86 = "indlls\\browserHook86.dll";
+const string ProcController::CHROME_HOOK_DLL_64 = "indlls\\browserHook64.dll"; // TODO: do I need this?
+
 //////////////////////////////////////////////////////////////
 
 ProcController::ProcController() : _modsFilename("mode.txt"), _logger("logging\\main_log.txt", true)
 {
-    _controllersCount += 1;
     loadMods();
     _dllInjector = DllInjector();
     _dllInjector.setLogger(&_logger);
@@ -19,7 +18,6 @@ ProcController::ProcController() : _modsFilename("mode.txt"), _logger("logging\\
 
 ProcController::~ProcController()
 {
-
 }
 
 int ProcController::loadMods()
@@ -53,54 +51,25 @@ int ProcController::loadMods()
     in >> count;
     in.get(); // reading line break
 
-    string s, f;
+    string str;
     std::istringstream ss;
-    Mode newMode;
     for (int i = 0; i < count; ++i)
     {
-        newMode.processes.clear();
-        newMode.urls.clear();
-        //reading name and description
-        std::getline(in, newMode.name);
-        std::getline(in, newMode.description);
-
-        // reading processes
-        std::getline(in, s);
-        ss.str(s);
-        while (!ss.eof())
-        {
-            std::getline(ss, f, '|');
-            if (f != "")
-                newMode.processes.push_back(f);
+        stringstream modeStream;
+        for (int i = 0; i < Mode::STR_MODE_LINE_COUNT; ++i) {
+            if (in.eof()) {
+                return ERROR_MODE_FILE_CORRUPTED;
+            }
+            std::getline(in, str);
+            modeStream << str << std::endl;
         }
-        ss.clear();
-
-        // reading urls
-        std::getline(in, s);
-        ss.str(s);
-        //ss.seekg(0, std::ios::beg);
-        while (!ss.eof())
-        {
-            std::getline(ss, f, '|');
-            if (f != "")
-                newMode.urls.push_back(f);
-        }
-        ss.clear();
-        //reading progress
-        in >> newMode.progress;
-        in.get(); // line break read
-
-        _allModes.push_back(newMode);
+        _allModes.push_back(Mode(modeStream));
     }
 
     return 0;
 }
 
-/// <summary>
-/// Kills process by process name
-/// </summary>
-/// <param name="processName">process name.</param>
-void ProcController::killProcessByName(string& processName)
+void ProcController::_killProcessByName(string& processName)
 {
     const int maxSize = 260; //max process name length
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -126,10 +95,7 @@ void ProcController::killProcessByName(string& processName)
     CloseHandle(hSnapShot);
 }
 
-/// <summary>
-/// Kills all controlled by current mode processes
-/// </summary>
-void ProcController::killControlledProcesses()
+void ProcController::_killControlledProcesses()
 {
     const int maxSize = 500; //max process name length
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -140,21 +106,20 @@ void ProcController::killControlledProcesses()
     BOOL hRes = Process32First(hSnapShot,& pEntry);
     char chStr[maxSize];
 
+    const vector<ProcessDesc> &processes = _currentMode->getProcesses();
+    const vector<string> &urls = _currentMode->getUrls();
     while (hRes)
     {
-        for (vector<string>::iterator it = _curProcToControl.begin(); it != _curProcToControl.end(); ++it)
+        for (int i = 0; i < processes.size(); ++i)
         {
             wcstombs(chStr, pEntry.szExeFile, maxSize * sizeof(WCHAR));
-            if (strcmp(chStr, (*it).c_str()) == 0)
+            if (strcmp(chStr, processes[i].getName().c_str()) == 0)
             {
-
-                hProcess = OpenProcess(PROCESS_TERMINATE, 0,
-                    (DWORD)pEntry.th32ProcessID);
+                hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
                 if (hProcess != NULL)
                 {
                     TerminateProcess(hProcess, 9);
                     CloseHandle(hProcess);
-                    //MessageBox(NULL, L"That program is not allowed in current mode!", L"Process control warning", MB_ICONWARNING);
                 }
             }
         }
@@ -165,19 +130,7 @@ void ProcController::killControlledProcesses()
     CloseHandle(hSnapShot);
 }
 
-/// <summary>
-/// Rewrites the mode file. Fills file with name _modsFilename with information 
-/// about modes: 
-/// 1) In the first line: %number of modes%
-/// 2) Next 5 lines describes first mode and so on:
-///                     %name%
-///                     %descriptions%
-///                     %programs separated with "|"%
-///                     %urls separated with "|"%
-///                     %progress (number)%
-/// </summary>
-/// <returns> 0 if ok </returns>
-int ProcController::rewriteModeFile()
+int ProcController::_rewriteModeFile()
 {
     std::ofstream out;
     out.open(_modsFilename.c_str(), std::ofstream::out);
@@ -186,23 +139,8 @@ int ProcController::rewriteModeFile()
 
     out << _allModes.size() << std::endl;
 
-    for (std::vector<Mode>::iterator& mode = _allModes.begin(); mode != _allModes.end(); ++mode)
-    {
-        out << mode->name << std::endl;
-        out << mode->description << std::endl;
-        for (std::vector<string>::iterator& process = mode->processes.begin();
-            process != mode->processes.end(); 
-            ++process)
-        {
-            out << *process << "|";
-        }
-        out << std::endl;
-        for (std::vector<string>::iterator& url = mode->urls.begin(); url != mode->urls.end(); ++url)
-        {
-            out << *url << "|";
-        }
-        out << std::endl;
-        out << mode->progress << std::endl;
+    for (std::vector<Mode>::iterator& mode = _allModes.begin(); mode != _allModes.end(); ++mode) {
+        out << *mode;
     }
 
     out.close();
@@ -210,100 +148,57 @@ int ProcController::rewriteModeFile()
     return 0;
 }
 
-int ProcController::getModsNames(vector<string>&  names) const
-{
-    names.clear();
-    names.resize(_allModes.size());
-
-    for (int i = 0; i < _allModes.size(); ++i)
-        names[i] = _allModes[i].name;
-
+int ProcController::getModes(vector<Mode> &modes) const {
+    modes = _allModes;
     return 0;
 }
 
-int ProcController::getModsDscriprions(vector<string>& descriptions) const
-{
-    descriptions.clear();
-    descriptions.resize(_allModes.size());
-
-    for (int i = 0; i < _allModes.size(); ++i)
-        descriptions[i] = _allModes[i].description;
-    return 0;
-}
-
-int ProcController::getModsProgress(vector<short>& progress) const
-{
-    progress.clear();
-    progress.resize(_allModes.size());
-
-    for (int i = 0; i < _allModes.size(); ++i)
-        progress[i] = _allModes[i].progress;
-    return 0;
-}
-
-int ProcController::getModeInfo(string& name, string& description, 
-    vector<string>& procToControl, vector<string>& urlToControl, 
-    short& progress) const
-{
-    int curMode = 0;
-    for (curMode = 0; curMode < _allModes.size(); ++curMode)
-    {
-        if (_allModes[curMode].name == name)
-            break;
+int ProcController::getMode(string name, Mode &mode) {
+    for (int i = 0; i < _allModes.size(); ++i) {
+        if (_allModes[i].getName() == name) {
+            mode = _allModes[i];
+            return 0;
+        }
     }
 
-    if (curMode >= _allModes.size())
-        return 1;
-
-    description = _allModes[curMode].description;
-    procToControl = _allModes[curMode].processes;
-    urlToControl = _allModes[curMode].urls;
-    progress = _allModes[curMode].progress;
-    
-    return 0;
+    return 1; // error, no mode found
 }
 
-int ProcController::getModeProgress(string& name)
+int ProcController::getModeProgress(string name) const
 {
     for (int i = 0; i < _allModes.size(); ++i) {
-        if (_allModes[i].name == name)
-            return _allModes[i].progress;
+        if (_allModes[i].getName() == name)
+            return _allModes[i].getProgress();
     }
     return -2;
 }
 
-int ProcController::editMode(string& oldName, string& newName, 
-    string& newDescr, vector<string>& newProcs, 
-    vector<string>& newUrls, short& newProgress)
+int ProcController::editMode(string oldName, Mode mode)
 {
-    if (newProcs.size() == 0 && newUrls.size() == 0)
-        return EMPTY_LISTS_ERROR;
+    if (mode.getProcessCount() == 0 && mode.getUrlCount() == 0)
+        return ERROR_EMPTY_LISTS;
 
-    if (newProgress > 100)
-        return BAD_PROGRESS_ERROR;
+    if (mode.getProgress() > 100)
+        return ERROR_BAD_PROGRESS;
 
-    if (newName.length() == 0)
-        return BAD_NAME_ERROR;
+    if (mode.getName().length() == 0)
+        return ERROR_BAD_NAME;
 
     int curMode = -1;
     int count = 0;
     for (int i = 0; i < _allModes.size(); ++i)
     {
-        if (_allModes[i].name == oldName)
+        if (_allModes[i].getName() == oldName)
             curMode = i;
-        if (_allModes[i].name == newName && oldName != newName)
-            return MODE_ALREADY_EXISTS_ERROR;
+        if (_allModes[i].getName() == mode.getName() && oldName != mode.getName())
+            return ERROR_MODE_ALREADY_EXISTS;
     }
     if (curMode == -1)
-        return NO_MODE_TO_EDIT;
+        return ERROR_NO_MODE_TO_EDIT;
 
-    _allModes[curMode].name = newName;
-    _allModes[curMode].description = newDescr;
-    _allModes[curMode].processes = newProcs;
-    _allModes[curMode].urls = newUrls;
-    _allModes[curMode].progress = newProgress;
+    _allModes[curMode] = mode;
 
-    this->rewriteModeFile();
+    this->_rewriteModeFile();
 
     return 0;
 }
@@ -312,10 +207,10 @@ int ProcController::deleteMode(string name)
 {
     for (vector<Mode>::iterator mode = _allModes.begin(); mode != _allModes.end(); ++mode)
     {
-        if (mode->name == name)
+        if (mode->getName() == name)
         {
             _allModes.erase(mode);
-            this->rewriteModeFile();
+            this->_rewriteModeFile();
             return 0;
         }
     }
@@ -323,60 +218,40 @@ int ProcController::deleteMode(string name)
     return 1;
 }
 
-int ProcController::addNewMode(string& name, string& description,
-    vector<string>& procToControl, vector<string>& urlToControl, short& progress)
+int ProcController::addNewMode(Mode newMode)
 {
     for (vector<Mode>::iterator mode = _allModes.begin(); mode != _allModes.end(); ++mode)
     {
-        if (mode->name == name)
-            return MODE_ALREADY_EXISTS_ERROR;
+        if (mode->getName() == newMode.getName())
+            return ERROR_MODE_ALREADY_EXISTS;
     }
 
-    if (procToControl.size() == 0 && urlToControl.size() == 0)
-        return EMPTY_LISTS_ERROR;
+    if (newMode.getProcessCount() == 0 && newMode.getUrlCount() == 0)
+        return ERROR_EMPTY_LISTS;
 
-    if (progress > 100)
-        return BAD_PROGRESS_ERROR;
+    if (newMode.getProgress() > 100)
+        return ERROR_BAD_PROGRESS;
 
-    if (name.length() == 0)
-        return BAD_NAME_ERROR;
+    if (newMode.getName().length() == 0)
+        return ERROR_BAD_NAME;
 
-    Mode newMode = { name, description, procToControl, urlToControl, progress };
     _allModes.push_back(newMode);
 
-    rewriteModeFile();
+    _rewriteModeFile();
 
     return 0;
 }
 
 int ProcController::setSessionMode(string& name)
 {
-    _activeModeName = name;
-
     std::stringstream ss;
     std::string item;
 
     for (vector<Mode>::iterator mode = _allModes.begin(); mode != _allModes.end(); ++mode)
     {
-        if (mode->name == name)
+        if (mode->getName() == name)
         {
-            _curProcToControl = mode->processes;
-            _curUrlToControl = mode->urls;
-            _curProgress = mode->progress;
-
-            // getting only .exe names [%name%.exe]
-            for (int i = 0; i < _curProcToControl.size(); ++i)
-            {
-                _curProcToControl[i].erase(0, 1);
-                _curProcToControl[i].erase(_curProcToControl[i].length() - 1, 1);
-
-                ss.str(_curProcToControl[i]);
-                ss.clear();
-                while (std::getline(ss, item, '/')) {
-                    _curProcToControl[i] = item;
-                }
-            }
-            return 0;
+            _currentMode = &(*mode);
         }
     }
     return 1;
@@ -384,45 +259,47 @@ int ProcController::setSessionMode(string& name)
 
 int ProcController::control()
 {
-    killControlledProcesses();
-    hookBrowsers();
+    _killControlledProcesses();
+    _hookBrowsers();
     return 0;
 }
 
 string ProcController::getActiveModeName()
 {
-    return _activeModeName;
+    return _currentMode->getName();
 }
 
-int ProcController::editProgress(string& name, int newProgress)
+int ProcController::editProgress(string name, int newProgress)
 {
-    if (newProgress < 0)
+    if (newProgress < 0 || newProgress > 100)
         return 1;
 
     for (vector<Mode>::iterator mode = _allModes.begin(); mode != _allModes.end(); ++mode)
     {
-        if (mode->name == name)
+        if (mode->getName() == name)
         {
-            mode->progress = newProgress;
-            this->rewriteModeFile();
+            mode->setProgress(newProgress);
+            this->_rewriteModeFile();
             return 0;
         }
     }
     return 1;
 }
 
-int ProcController::createSessionSharedFiles() {
+int ProcController::_createSessionSharedFiles() {
     const size_t MAX_DIGIT_NUMBER = 5;
     char sharedSizeFileName[] = "Global\\ProcessControlAppSizes";
 
+    const vector<string> &urls = _currentMode->getUrls();
     int size = 0;
-    for (int i = 0; i < _curUrlToControl.size(); ++i) {
-        size += _curUrlToControl[i].size() + 1 + MAX_DIGIT_NUMBER + 1;
+    for (int i = 0; i < urls.size(); ++i) {
+        size += urls[i].length() + 1 + MAX_DIGIT_NUMBER + 1;
     }
 
     // creating file with sizes 
 
     _logger.log("INFO: creating file with size of restricted urls");
+
     /*
     (MAX_DIGIT_NUMBER + 1) * (2) - number of symbols (bytes) in first shared file.
     First shared file will store:
@@ -438,7 +315,7 @@ int ProcController::createSessionSharedFiles() {
     char num[MAX_DIGIT_NUMBER];
     itoa(size, num, 10);
     _mmfileSizes.writeLine(num);
-    itoa(_curUrlToControl.size(), num, 10);
+    itoa(urls.size(), num, 10);
     _mmfileSizes.writeLine(num);
 
     // creating file with urls
@@ -448,10 +325,10 @@ int ProcController::createSessionSharedFiles() {
         _logger.log("ERROR: cannot create shared file for urls.");
         return 1;
     }
-    for (int i = 0; i < _curUrlToControl.size(); ++i) {
-        itoa(_curUrlToControl[i].length(), num, 10);
+    for (int i = 0; i < urls.size(); ++i) {
+        itoa(urls[i].length(), num, 10);
         _mmfileUrls.writeLine(num);
-        _mmfileUrls.writeLine(_curUrlToControl[i].c_str());
+        _mmfileUrls.writeLine(urls[i].c_str());
     }
 
    /* my_shared_mem::MemMappedFile test;
@@ -470,22 +347,22 @@ int ProcController::createSessionSharedFiles() {
     
 }
 
-void ProcController::destroySessionSharedFiles() {
+void ProcController::_destroySessionSharedFiles() {
     _mmfileSizes.close();
     _mmfileUrls.close();
 }
 
-int ProcController::hookBrowserProcess(unsigned long pId)
+int ProcController::_hookBrowserProcess(unsigned long pId)
 {
     _logger.log("INFO: Injecting dll into process : %lu", pId);
-    if (_dllInjector.inject(pId, _dll86name)) {
+    if (_dllInjector.inject(pId, CHROME_HOOK_DLL_86)) {
         _logger.log("ERROR: Cannot inject dll.");
         return 1;
     }
     return 0;
 }
 
-void ProcController::hookBrowsers()
+void ProcController::_hookBrowsers()
 {
     const int maxSize = 500; //max process name length
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -529,14 +406,18 @@ void ProcController::hookBrowsers()
     for (vector<DWORD>::iterator it = browsersForHookIds.begin(); it != browsersForHookIds.end(); ++it)
     {
         _hookedPids.insert(*it);
-        hookBrowserProcess(*it);
+        _hookBrowserProcess(*it);
     } 
 }
 
+void ProcController::_hookTaskmanagers() {
+
+}
+
 void ProcController::init() {
-    this->createSessionSharedFiles();
+    this->_createSessionSharedFiles();
 }
 
 void ProcController::uninit() {
-    this->destroySessionSharedFiles();
+    this->_destroySessionSharedFiles();
 }

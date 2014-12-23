@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     icon.addFile(QStringLiteral(":/MainWindow/Resources/mainTray.ico"), QSize(), QIcon::Normal, QIcon::Off);
     this->setWindowIcon(icon);
     modeCrDlg = NULL;
+    endSessionDlg = NULL;
+    trayIconMenu = NULL;
 
     ModeListItemDelegate *listDelegate = new ModeListItemDelegate();
     ui.modeListView->setItemDelegate(listDelegate);
@@ -16,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     modeModel = new QStandardItemModel();
     ui.modeListView->setModel(modeModel);
 
+    
 
     fillModeModel();
 
@@ -34,30 +37,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 int MainWindow::fillModeModel()
 {
     modeModel->clear();
-    vector<string> names;
-    vector<string> descriptions;
-    vector<short> progress;
 
-    processController.getModsNames(names);
-    processController.getModsDscriprions(descriptions);
-    processController.getModsProgress(progress);
-
-    _ASSERT(names.size() == descriptions.size());
-    _ASSERT(names.size() == progress.size());
+    vector<Mode> modes;
+    processController.getModes(modes);
 
     QStandardItem *item;
     char sprogress[20];
-    for (int i = 0; i < names.size(); ++i)
+    for (int i = 0; i < modes.size(); ++i)
     {
         item = new QStandardItem();
-        item->setData(names[i].c_str(), ModeListItemDelegate::modeNameRole);
-        item->setData(descriptions[i].c_str(), ModeListItemDelegate::descriptionRole);
-        if (progress[i] < 0) {
+        item->setData(modes[i].getName().c_str(), ModeListItemDelegate::modeNameRole);
+        item->setData(modes[i].getDescription().c_str(), ModeListItemDelegate::descriptionRole);
+        if (modes[i].getProgress() < 0) {
             item->setData("no progress", ModeListItemDelegate::progressRole);
         }
         else
         {
-            itoa(progress[i], sprogress, 10);
+            itoa(modes[i].getProgress(), sprogress, 10);
             strcat(sprogress, " / 100 %");
             item->setData(sprogress, ModeListItemDelegate::progressRole);
         }
@@ -73,10 +69,13 @@ MainWindow::~MainWindow()
     delete trayIcon;
     delete sessionTimer;
     delete controlTimer;
-    delete modeCrDlg;
     delete modeModel;
-    delete endSessionDlg;
-    // delete trayIconMenu; // TODO: error here
+    if (modeCrDlg != NULL)
+        delete modeCrDlg;
+    if (endSessionDlg != NULL)
+        delete endSessionDlg;
+    if (trayIconMenu != NULL)
+        delete trayIconMenu; // TODO: error here
     delete startTime;
 }
 
@@ -86,10 +85,7 @@ void MainWindow::openModeCreationDialog()
         modeCrDlg->reject();
     }
     modeCrDlg = new ModeCreationDialog(this);
-    connect(modeCrDlg,
-        SIGNAL(modeAccepted(string&, string&, vector<string>&, vector<string>&, short&)),
-        this,
-        SLOT(addNewMode(string&, string&, vector<string>&, vector<string>&, short&)));
+    connect(modeCrDlg, SIGNAL(modeAccepted(Mode&)), this, SLOT(addNewMode(Mode&)));
     connect(modeCrDlg, SIGNAL(rejected()), this, SLOT(closeModeCreationDialog()));
     modeCrDlg->exec();
 }
@@ -107,23 +103,17 @@ void MainWindow::openModeCreationDialogEdit()
     QModelIndex index = list.at(0);
     
     string name;
-    string description;
-    vector<string> procToControl;
-    vector<string> urlToControl;
-    short progress;
 
+    Mode mode;
     name = index.data(ModeListItemDelegate::modeNameRole).toString().toStdString();
-    if (processController.getModeInfo(name, description, procToControl, urlToControl, progress))
+    if (processController.getMode(name, mode))
         return;
 
     if (modeCrDlg != NULL) {
         modeCrDlg->reject();
     }
-    modeCrDlg = new ModeCreationDialog(name, description, procToControl, urlToControl, progress, this);
-    connect(modeCrDlg, 
-        SIGNAL(modeEditAccepted(string&, string&, string&, vector<string>&, vector<string>&, short&)), 
-        this, 
-        SLOT(editMode(string&, string&, string&, vector<string>&, vector<string>&, short&)));
+    modeCrDlg = new ModeCreationDialog(mode, this);
+    connect(modeCrDlg, SIGNAL(modeEditAccepted(string&, Mode&)), this, SLOT(editMode(string&, Mode&)));
     connect(modeCrDlg, SIGNAL(rejected()), this, SLOT(closeModeCreationDialog()));
     modeCrDlg->exec();
 }
@@ -210,24 +200,24 @@ void MainWindow::createTrayIcon()
     trayIcon->setVisible(false);
 }
 
-int MainWindow::addNewMode(string &name, string &description, vector<string> &procToControl, vector<string> &urlToControl, short &progress)
+int MainWindow::addNewMode(Mode &mode)
 {
-    int f = processController.addNewMode(name, description, procToControl, urlToControl, progress);
+    int f = processController.addNewMode(mode);
     switch (f)
     {
-    case BAD_NAME_ERROR:
+    case ERROR_BAD_NAME:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Bad mode name!"));
         break;
-    case EMPTY_LISTS_ERROR:
+    case ERROR_EMPTY_LISTS:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Link or program lists must be filled!"));
         break;
-    case MODE_ALREADY_EXISTS_ERROR:
+    case ERROR_MODE_ALREADY_EXISTS:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Mode with that name is already exist!"));
         break;
-    case TOO_BIG_DESCRIPTION_ERROR:
+    case ERROR_TOO_BIG_DESCRIPTION:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Too long description!"));
         break;
@@ -240,28 +230,28 @@ int MainWindow::addNewMode(string &name, string &description, vector<string> &pr
     return 0;
 }
 
-int MainWindow::editMode(string &oldName, string &newName, string &newDescr, vector<string> &newProcs, vector<string> &newUrls, short &newProgress)
+int MainWindow::editMode(string &oldName, Mode &mode)
 {
-    int f = processController.editMode(oldName, newName, newDescr, newProcs, newUrls, newProgress);
+    int f = processController.editMode(oldName, mode);
     switch (f)
     {
-    case BAD_NAME_ERROR:
+    case ERROR_BAD_NAME:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Bad mode name!"));
         break;
-    case EMPTY_LISTS_ERROR:
+    case ERROR_EMPTY_LISTS:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Link or program lists must be filled!"));
         break;
-    case MODE_ALREADY_EXISTS_ERROR:
+    case ERROR_MODE_ALREADY_EXISTS:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Mode with that name is already exist!"));
         break;
-    case TOO_BIG_DESCRIPTION_ERROR:
+    case ERROR_TOO_BIG_DESCRIPTION:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("Too long description!"));
         break;
-    case NO_MODE_TO_EDIT:
+    case ERROR_NO_MODE_TO_EDIT:
         QMessageBox::about(modeCrDlg, tr("Error"),
             tr("No mode to edit!"));
         break;
