@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <iterator>
 #include <sstream>
+#include <exception>
 
 #include "../../commonUtils/headers/memmapfile.h"
 #include "../../commonUtils/headers/Logger.h"
@@ -27,6 +28,7 @@
 using std::vector;
 using std::string;
 using std::set;
+using std::exception;
 
 #define ERROR_MODE_ALREADY_EXISTS 1
 #define ERROR_TOO_BIG_DESCRIPTION 2
@@ -36,6 +38,13 @@ using std::set;
 #define ERROR_NO_MODE_TO_EDIT 6
 #define ERROR_MODE_FILE_CORRUPTED 7
 
+class ModeNotFoundException : public exception {
+public:
+    virtual const char* what() const throw()
+    {
+        return "Mode not found exception happend!";
+    }
+};
 
 class ProcController
 {
@@ -57,6 +66,8 @@ private:
 
     static const string CHROME_HOOK_DLL_86;
     static const string CHROME_HOOK_DLL_64;
+    static const string CONTROLLED_BROWSERS[];
+    static const string CONTROLLED_TASKMANAGERS[];
 
     DllInjector _dllInjector;
 
@@ -69,6 +80,7 @@ private:
     vector<Mode> _allModes;
 
     set<string> _controlledBrowsers;
+    set<string> _controlledTaskmanagers;
 
     set<DWORD> _hookedPids;
 
@@ -111,17 +123,17 @@ private:
 
     int _hookBrowserProcess(unsigned long pId);
 
-    void _hookBrowsers();
-
-    void _hookTaskmanagers();
+    int _hookTaskmanagerProcess(unsigned long pId);
 
     int _createSessionSharedFiles();
 
     void _destroySessionSharedFiles();
-public:
-    int getMode(string name, Mode &mode);
 
-    int getModes(vector<Mode> &modes) const;
+    int _killProcessIfRestricted(const PROCESSENTRY32 &pEntry, const char* name);
+public:
+    const Mode& getMode(string name);
+
+    const vector<Mode> getModes() const;
 
     /**
     * @fn  int ProcController::getModsProgress(vector<short>& progress) const

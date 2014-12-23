@@ -23,7 +23,7 @@ class ModeCreationDialog : public QDialog
 public:
     void setup();
     ModeCreationDialog(QWidget *parent);
-    ModeCreationDialog(Mode &mode, QWidget *parent);
+    ModeCreationDialog(const Mode &mode, QWidget *parent);
     ~ModeCreationDialog();
 
 public slots:

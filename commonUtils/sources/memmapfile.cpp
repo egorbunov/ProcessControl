@@ -94,7 +94,7 @@ char* my_shared_mem::MemMappedFile::readLine(char *dest) {
 
     int i = 0;
     while (curPosition < (int)strlen(buffer) && buffer[curPosition] != '\n') {
-        if (dest == NULL || (int)strlen(dest) < i + 1)
+        if (dest == NULL)
             return NULL;
         dest[i++] = buffer[curPosition++];
     }

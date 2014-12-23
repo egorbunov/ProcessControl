@@ -88,7 +88,7 @@ void ModeCreationDialog::accept()
         emit modeEditAccepted(oldName, mode);
 }
 
-ModeCreationDialog::ModeCreationDialog(Mode &mode, QWidget *parent) : QDialog(parent)
+ModeCreationDialog::ModeCreationDialog(const Mode &mode, QWidget *parent) : QDialog(parent)
 {
     oldName = mode.getName();
     ui.setupUi(this);
@@ -150,6 +150,7 @@ void ModeCreationDialog::setProgressCheked(bool c)
     }
 
 }
+
 void ModeCreationDialog::addNewRestriction()
 {
     QWidget *curWidget = ui.tabWidget->currentWidget();
@@ -164,6 +165,7 @@ void ModeCreationDialog::addNewRestriction()
         addProgramRestriction();
     }
 }
+
 void ModeCreationDialog::addProgramRestriction()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Files (*.exe)"));

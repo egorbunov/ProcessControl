@@ -9,8 +9,8 @@ ProcessDesc::ProcessDesc(string path) {
     path.erase(path.length() - 1, 1);
 
     size_t index = path.find_last_of('/');
-    if (index != string::npos)
-        this->name = path.substr(index);
+    if (index != string::npos && index + 1 < path.length())
+        this->name = path.substr(index + 1);
     else
         this->name = path;
 }

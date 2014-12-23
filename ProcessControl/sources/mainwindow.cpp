@@ -38,8 +38,7 @@ int MainWindow::fillModeModel()
 {
     modeModel->clear();
 
-    vector<Mode> modes;
-    processController.getModes(modes);
+    const vector<Mode> &modes = processController.getModes();
 
     QStandardItem *item;
     char sprogress[20];
@@ -104,10 +103,9 @@ void MainWindow::openModeCreationDialogEdit()
     
     string name;
 
-    Mode mode;
     name = index.data(ModeListItemDelegate::modeNameRole).toString().toStdString();
-    if (processController.getMode(name, mode))
-        return;
+
+    const Mode& mode = processController.getMode(name);
 
     if (modeCrDlg != NULL) {
         modeCrDlg->reject();

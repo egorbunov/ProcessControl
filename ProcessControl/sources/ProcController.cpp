@@ -2,8 +2,11 @@
 
 // ----------- Constants --------------
 
-const string ProcController::CHROME_HOOK_DLL_86 = "indlls\\browserHook86.dll";
-const string ProcController::CHROME_HOOK_DLL_64 = "indlls\\browserHook64.dll"; // TODO: do I need this?
+const string ProcController::CHROME_HOOK_DLL_86 = "indlls\\chromeHook86.dll";
+const string ProcController::CHROME_HOOK_DLL_64 = "indlls\\chromeHook64.dll"; // TODO: do I need this?
+
+const string ProcController::CONTROLLED_BROWSERS[] = { "chrome.exe" };
+const string ProcController::CONTROLLED_TASKMANAGERS[] = { "taskmgr.exe" };
 
 //////////////////////////////////////////////////////////////
 
@@ -13,7 +16,8 @@ ProcController::ProcController() : _modsFilename("mode.txt"), _logger("logging\\
     _dllInjector = DllInjector();
     _dllInjector.setLogger(&_logger);
 
-    _controlledBrowsers.insert("chrome.exe");
+    _controlledBrowsers.insert(std::begin(CONTROLLED_BROWSERS), std::end(CONTROLLED_BROWSERS));
+    _controlledTaskmanagers.insert(std::begin(CONTROLLED_TASKMANAGERS), std::end(CONTROLLED_TASKMANAGERS));
 }
 
 ProcController::~ProcController()
@@ -108,16 +112,13 @@ void ProcController::_killControlledProcesses()
 
     const vector<ProcessDesc> &processes = _currentMode->getProcesses();
     const vector<string> &urls = _currentMode->getUrls();
-    while (hRes)
-    {
-        for (int i = 0; i < processes.size(); ++i)
-        {
+    while (hRes) {
+        for (int i = 0; i < processes.size(); ++i) {
             wcstombs(chStr, pEntry.szExeFile, maxSize * sizeof(WCHAR));
-            if (strcmp(chStr, processes[i].getName().c_str()) == 0)
-            {
+
+            if (strcmp(chStr, processes[i].getName().c_str()) == 0) {
                 hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
-                if (hProcess != NULL)
-                {
+                if (hProcess != NULL) {
                     TerminateProcess(hProcess, 9);
                     CloseHandle(hProcess);
                 }
@@ -128,6 +129,21 @@ void ProcController::_killControlledProcesses()
 
 
     CloseHandle(hSnapShot);
+}
+
+int ProcController::_killProcessIfRestricted(const PROCESSENTRY32 &pEntry, const char* name) {
+    const vector<ProcessDesc> &processes = _currentMode->getProcesses();
+    for (int i = 0; i < processes.size(); ++i) {
+        if (strcmp(name, processes[i].getName().c_str()) == 0) {
+            HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
+            if (hProcess != NULL) {
+                TerminateProcess(hProcess, 9);
+                CloseHandle(hProcess);
+            }
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int ProcController::_rewriteModeFile()
@@ -148,20 +164,18 @@ int ProcController::_rewriteModeFile()
     return 0;
 }
 
-int ProcController::getModes(vector<Mode> &modes) const {
-    modes = _allModes;
-    return 0;
+const vector<Mode> ProcController::getModes() const {
+    return _allModes;
 }
 
-int ProcController::getMode(string name, Mode &mode) {
+const Mode& ProcController::getMode(string name) {
     for (int i = 0; i < _allModes.size(); ++i) {
         if (_allModes[i].getName() == name) {
-            mode = _allModes[i];
-            return 0;
+            return _allModes[i];
         }
     }
 
-    return 1; // error, no mode found
+    throw ModeNotFoundException();
 }
 
 int ProcController::getModeProgress(string name) const
@@ -259,8 +273,73 @@ int ProcController::setSessionMode(string& name)
 
 int ProcController::control()
 {
-    _killControlledProcesses();
-    _hookBrowsers();
+    const int maxSize = 500; //max process name length
+    HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+    PROCESSENTRY32 pEntry;
+    HANDLE hProcess;
+
+    pEntry.dwSize = sizeof(pEntry);
+    BOOL hRes = Process32First(hSnapShot, &pEntry);
+    char chStr[maxSize];
+
+    const vector<ProcessDesc> &processes = _currentMode->getProcesses();
+    const vector<string> &urls = _currentMode->getUrls();
+
+    set<DWORD> openedBrowsersIds;
+    set<DWORD> openedTaskmngrsIds;
+
+    while (hRes) {
+        wcstombs(chStr, pEntry.szExeFile, maxSize * sizeof(WCHAR));
+
+        // killing if process restricted, so if killed (return value == 0), 
+        // no need for hooking
+        if (_killProcessIfRestricted(pEntry, chStr)) {
+            // hooking, if that is supported browser
+            if (_controlledBrowsers.find(chStr) != _controlledBrowsers.end()) {
+                openedBrowsersIds.insert((DWORD)pEntry.th32ProcessID);
+            } 
+            else {
+                // hooking, if that is supported taskmanager
+                if (_controlledTaskmanagers.find(chStr) != _controlledTaskmanagers.end())
+                    openedTaskmngrsIds.insert((DWORD)pEntry.th32ProcessID);
+            }
+        }
+
+        hRes = Process32Next(hSnapShot, &pEntry);
+    }
+    CloseHandle(hSnapShot);
+
+    vector<DWORD> closedIds;
+    vector<DWORD> browsersForHookIds;
+    vector<DWORD> taskmngrsForHookIds;
+
+    // getting browsers and taskmng process ids, which already closed
+    set_difference(_hookedPids.begin(), _hookedPids.end(), openedBrowsersIds.begin(), openedBrowsersIds.end(),
+                   inserter(closedIds, closedIds.end()));
+    set_difference(closedIds.begin(), closedIds.end(), openedTaskmngrsIds.begin(), openedTaskmngrsIds.end(),
+                   inserter(closedIds, closedIds.end()));
+
+    // browsers ids, which we need to hook
+    set_difference(openedBrowsersIds.begin(), openedBrowsersIds.end(), _hookedPids.begin(), _hookedPids.end(),
+                   inserter(browsersForHookIds, browsersForHookIds.end()));
+
+    // taskmngrs ids, which we need to hook
+    set_difference(openedTaskmngrsIds.begin(), openedTaskmngrsIds.end(), _hookedPids.begin(), _hookedPids.end(),
+                   inserter(taskmngrsForHookIds, taskmngrsForHookIds.end()));
+
+    for (vector<DWORD>::iterator it = closedIds.begin(); it != closedIds.end(); ++it)
+        _hookedPids.erase(*it);
+
+    for (vector<DWORD>::iterator it = browsersForHookIds.begin(); it != browsersForHookIds.end(); ++it) {
+        _hookBrowserProcess(*it);
+        _hookedPids.insert(*it);
+    }
+
+    for (vector<DWORD>::iterator it = taskmngrsForHookIds.begin(); it != taskmngrsForHookIds.end(); ++it) {
+        _hookTaskmanagerProcess(*it);
+        _hookedPids.insert(*it);
+    }
+
     return 0;
 }
 
@@ -352,6 +431,10 @@ void ProcController::_destroySessionSharedFiles() {
     _mmfileUrls.close();
 }
 
+int ProcController::_hookTaskmanagerProcess(unsigned long pId) {
+    return 0;
+}
+
 int ProcController::_hookBrowserProcess(unsigned long pId)
 {
     _logger.log("INFO: Injecting dll into process : %lu", pId);
@@ -360,58 +443,6 @@ int ProcController::_hookBrowserProcess(unsigned long pId)
         return 1;
     }
     return 0;
-}
-
-void ProcController::_hookBrowsers()
-{
-    const int maxSize = 500; //max process name length
-    HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
-    PROCESSENTRY32 pEntry;
-    HANDLE hProcess;
-
-    pEntry.dwSize = sizeof(pEntry);
-    BOOL hRes = Process32First(hSnapShot, &pEntry);
-    char chStr[maxSize];
-
-    DWORD pId;
-    set<DWORD> openedBrowsersIds;
-    while (hRes)
-    {
-        for (set<string>::iterator it = _controlledBrowsers.begin(); it != _controlledBrowsers.end(); ++it)
-        {
-            wcstombs(chStr, pEntry.szExeFile, maxSize * sizeof(WCHAR));
-            if (strcmp(chStr, (*it).c_str()) == 0)
-                openedBrowsersIds.insert((DWORD)pEntry.th32ProcessID);
-        }
-        hRes = Process32Next(hSnapShot, &pEntry);
-    }
-    CloseHandle(hSnapShot);
-
-    vector<DWORD> closedBrowsersIds;
-    vector<DWORD> browsersForHookIds;
-
-    // getting browsers process ids, which already closed
-    set_difference(_hookedPids.begin(), _hookedPids.end(), openedBrowsersIds.begin(), openedBrowsersIds.end(), 
-        inserter(closedBrowsersIds, closedBrowsersIds.end()));
-
-    // browsers ids, which we need to hook
-    set_difference(openedBrowsersIds.begin(), openedBrowsersIds.end(), _hookedPids.begin(), _hookedPids.end(),
-        inserter(browsersForHookIds, browsersForHookIds.end()));
-
-    for (vector<DWORD>::iterator it = closedBrowsersIds.begin(); it != closedBrowsersIds.end(); ++it)
-    {
-        _hookedPids.erase(*it);
-    }
-
-    for (vector<DWORD>::iterator it = browsersForHookIds.begin(); it != browsersForHookIds.end(); ++it)
-    {
-        _hookedPids.insert(*it);
-        _hookBrowserProcess(*it);
-    } 
-}
-
-void ProcController::_hookTaskmanagers() {
-
 }
 
 void ProcController::init() {

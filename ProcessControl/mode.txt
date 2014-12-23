@@ -11,6 +11,6 @@ yandex.ru|vk.com|google.ru|www.google.ru|
 82
 Test mode
 Lorem ipsum
-"F:/Program Files/BioShock Infinite.v 1.1.25.5165 + 4 DLC/Binaries/Win32/BioShockInfinite.exe"|"F:/Program Files/StarCraft/StarCraft.exe"|
+"F:/Program Files/BioShock Infinite.v 1.1.25.5165 + 4 DLC/Binaries/Win32/BioShockInfinite.exe"|"F:/Program Files/StarCraft/StarCraft.exe"|"C:/Users/Egor/AppData/Roaming/Telegram Win (Unofficial)/Telegram.exe"|
 vk.com|twitter.com|instagram.com|youtube.com|
 68

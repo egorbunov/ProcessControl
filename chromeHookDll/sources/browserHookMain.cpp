@@ -53,13 +53,14 @@ __declspec(dllexport) int WINAPI MyGetAddrInfo(_In_opt_  PCSTR pNodeName,
     _Out_     PADDRINFOA *ppResult)
 {
     int compareAns = 0;
-
+    //MessageBox(NULL, pNodeName, "xxx", MB_OK);
     if (g_isReady == true && g_urlNum != NULL) {
         for (int i = 0; i < g_urlNum; ++i) {
             if (g_urls[i] != NULL) {
-                if (strcmp(pNodeName, g_urls[i]) == 0) {
-                    g_logger->log("INFO: site blocked [%s]", g_urls[i]);
+                if (strstr(g_urls[i], pNodeName) != NULL) {
+                    //g_logger->log("INFO: site blocked [%s]", g_urls[i]);
                     SetLastError(WSAHOST_NOT_FOUND);
+                    WSASetLastError(WSAHOST_NOT_FOUND);
                     return WSAHOST_NOT_FOUND;
                 }
             }
