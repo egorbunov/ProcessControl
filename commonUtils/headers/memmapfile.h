@@ -27,8 +27,11 @@ namespace my_shared_mem {
         bool create(const char *name, size_t size);
         bool openExisting(const char *name, size_t size, int flags = FILE_MAP_ALL_ACCESS);
         char* readLine(char *dest);
-        bool readInt(int *dst);
+        bool readDecimal(int *dst);
+        bool readDecimal(unsigned long *dst);
         bool writeLine(const char *str);
+        bool writeDecimal(int num);
+        bool writeDecimal(unsigned long num);
         bool close();
         void reset();
     };

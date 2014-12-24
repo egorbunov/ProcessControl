@@ -23,8 +23,11 @@
 
 // ----------------------------------- GLOBALS -----------------------------------------------
 char g_logfilename[125] = "F:\\gitmain\\ProcessControlProj\\ProcessControl\\ProcessControl\\logging\\dll_log";
-Logger *g_logger;
+Logger *g_logger = NULL;
 FARPROC g_fpQuerySysInfo;
+
+DWORD g_processContollPID;
+DWORD g_taskmgrHookerPID;
 
 //------------------------------------- NtQuerySystemInformation HOOK ------------------------------------------
 typedef NTSTATUS(WINAPI *NTQSYSINFO)(_In_ SYSTEM_INFORMATION_CLASS, _Inout_ PVOID, _In_ ULONG, _Out_opt_ PULONG);
@@ -48,7 +51,7 @@ __declspec(dllexport) NTSTATUS WINAPI MyNtQuerySystemInformation(_In_       SYST
             memset(pName, 0, sizeof(pName));
             WideCharToMultiByte(CP_ACP, 0, infoP->ProcessName.Buffer, infoP->ProcessName.Length, pName, sizeof(pName), NULL, NULL);
             if (strcmp(pName, "taskmgrHooker64.exe") == 0) {
-                MessageBox(NULL, pName, "dsadsa", MB_OK);
+                //MessageBox(NULL, pName, "dsadsa", MB_OK);
             }
             if (!infoP->NextEntryDelta) break;
             infoP = (PSYSTEM_PROCESSES)(((LPBYTE)infoP) + infoP->NextEntryDelta);
@@ -59,13 +62,25 @@ __declspec(dllexport) NTSTATUS WINAPI MyNtQuerySystemInformation(_In_       SYST
 }
 
 
+static void readPIDSFromSharedFile() {
+    g_logger->info("Trying to read from shared mem");
+    const char SHARED_FILE_WITH_PIDS_NAME[] = "Global\\TaskmgrHookerPIDSFile";
+    const size_t MAX_DIGIT_NUM = 15;
+    my_shared_mem::MemMappedFile file;
+    if (!file.openExisting(SHARED_FILE_WITH_PIDS_NAME, (MAX_DIGIT_NUM + 1) * 2, FILE_MAP_READ)) {
+        g_logger->error("Cannot open shared file! err code: %i", GetLastError());
+    }
+    file.readDecimal(&g_processContollPID);
+    g_logger->info("ProcessControll.exe pid read: %lu", g_processContollPID);
+    file.readDecimal(&g_taskmgrHookerPID);
+    g_logger->info("tasmgrHooker pid read: %lu", g_taskmgrHookerPID);
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 {
     //MessageBox(NULL, "TEXT", "TEXT", MB_OK);
     if (dwReason == DLL_PROCESS_ATTACH) {
-        g_fpQuerySysInfo = GetProcAddress(GetModuleHandle("ntdll.dll"), "NtQuerySystemInformation");
-
-        unsigned long pid = GetCurrentProcessId(); // hope process id will fit in integer
+        DWORD pid = GetCurrentProcessId(); // hope process id will fit in integer
         char strpid[12];
         _ultoa_s(pid, strpid, 10);
         strcat_s(g_logfilename, strpid);
@@ -73,10 +88,13 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 
         g_logger = new Logger(g_logfilename, true);
 
+        g_logger->info("Reading shared file");
+        readPIDSFromSharedFile();
+
+        g_fpQuerySysInfo = GetProcAddress(GetModuleHandle("ntdll.dll"), "NtQuerySystemInformation");
+
         g_logger->info("Dll process attach.");
-
         g_logger->info("initializing hook");
-
         // Creating a HOOK
         if (MH_Initialize() != MH_OK) {
             g_logger->error("Cannot initialize minhook!");

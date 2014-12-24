@@ -9,13 +9,17 @@ my_shared_mem::MemMappedFile::MemMappedFile() {
     buffer = NULL;
 }
 
-/// <summary>
-/// Creates shared file for read and write access with specified name.
-/// Every call of that function must be provided with close() call.
-/// </summary>
-/// <param name="name">Name of the shared file.</param>
-/// <param name="size">File max. size.</param>
-/// <returns> true if all is okay, and false else.</returns>
+/**
+ * @fn  bool my_shared_mem::MemMappedFile::create(const char *name, size_t size)
+ *
+ * @brief   Creates shared file for read and write access with specified name. Every call of that
+ *          function must be provided with close() call.
+ *
+ * @param   name    Name of the shared file.
+ * @param   size    File max. size.
+ *
+ * @return  true if all is okay, and false else.
+ */
 bool my_shared_mem::MemMappedFile::create(const char *name, size_t size) {
     buffer = new char[size];
 
@@ -45,14 +49,18 @@ bool my_shared_mem::MemMappedFile::create(const char *name, size_t size) {
     return true;
 }
 
-
-/// <summary>
-/// Opens the existing shared file.
-/// Every call of that function must be provided with close() call.
-/// </summary>
-/// <param name="name">Name of the file to open</param>
-/// <param name="size">Size of the file</param>
-/// <returns>true is success and false else.</returns>
+/**
+ * @fn  bool my_shared_mem::MemMappedFile::openExisting(const char *name, size_t size, int flags)
+ *
+ * @brief   Opens the existing shared file. Every call of that function must be provided with
+ *          close() call.
+ *
+ * @param   name    Name of the file to open.
+ * @param   size    Size of the file.
+ * @param   flags   The flags.
+ *
+ * @return  true is success and false else.
+ */
 bool my_shared_mem::MemMappedFile::openExisting(const char *name, size_t size, int flags) {
     buffer = new char[size];
 
@@ -81,13 +89,18 @@ bool my_shared_mem::MemMappedFile::openExisting(const char *name, size_t size, i
     return true;
 }
 
-/// <summary>
-/// Reads the line from shared file. Shared file must be opened before using that function;
-/// Every call will increase file iterator. To seek to file start use reset() method;
-/// </summary>
-/// <param name="dest">buffer to write to</param>
-/// <returns>NULL if error occured, valid pointer 
-/// if else (dest points to the same mem. location) </returns>
+/**
+ * @fn  char* my_shared_mem::MemMappedFile::readLine(char *dest)
+ *
+ * @brief   Reads the line from shared file. Shared file must be opened before using that
+ *          function;
+ *          Every call will increase file iterator. To seek to file start use reset() method;
+ *
+ *
+ * @param [in,out]  dest    buffer to write to.
+ *
+ * @return  NULL if error occured, valid pointer if else (dest points to the same mem. location)
+ */
 char* my_shared_mem::MemMappedFile::readLine(char *dest) {
     if (buffer == NULL)
         return NULL;
@@ -141,10 +154,31 @@ void my_shared_mem::MemMappedFile::reset() {
         curPosition = 0;
 }
 
-bool my_shared_mem::MemMappedFile::readInt(int *dst) {
+bool my_shared_mem::MemMappedFile::readDecimal(int *dst) {
     char num[12];
     if (this->readLine(num) == NULL)
         return false;
     *dst = atoi(num);
     return true;
 }
+
+bool my_shared_mem::MemMappedFile::readDecimal(unsigned long *dst) {
+    char num[15];
+    if (this->readLine(num) == NULL)
+        return false;
+    *dst = (unsigned long) atoll(num);
+    return true;
+}
+
+bool my_shared_mem::MemMappedFile::writeDecimal(int num) {
+    char strnum[15];
+    _itoa_s(num, strnum, 10);
+    return writeLine(strnum);
+}
+
+bool my_shared_mem::MemMappedFile::writeDecimal(unsigned long num) {
+    char strnum[15];
+    _ultoa_s(num, strnum, 10);
+    return writeLine(strnum);
+}
+

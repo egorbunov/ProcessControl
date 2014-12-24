@@ -19,7 +19,7 @@ Logger::Logger(const char *filename, bool isNewFile, bool addPidPrefix, bool isM
     }
 }
 
-char* Logger::_addPrefixAndPrint(const char* prefix, const char* format, va_list arguments) {
+void Logger::_addPrefixAndPrint(const char* prefix, const char* format, va_list arguments) {
     if (fopen_s(&pfile_, filename_, "a+") != 0) {
         throw "Cannot log to file (cannot open log file)";
     }

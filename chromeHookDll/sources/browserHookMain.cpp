@@ -83,12 +83,12 @@ int readRestrictedUrls()
         return 1;
     }
     int urlsFileSize;
-    if (!mmfileSizes.readInt(&urlsFileSize)) {
+    if (!mmfileSizes.readDecimal(&urlsFileSize)) {
         g_logger->error("cannot read size from shared file, error code : [%i]", GetLastError());
         return 1;
     }
     int urlNum;
-    if (!mmfileSizes.readInt(&urlNum)) {
+    if (!mmfileSizes.readDecimal(&urlNum)) {
         g_logger->error("cannot read number of urls from shared file, error code : [%i]", GetLastError());
         return 1;
     }
@@ -111,7 +111,7 @@ int readRestrictedUrls()
     g_urls = new char*[urlNum];
     int curSize;
     for (int i = 0; i < urlNum; ++i) {
-        if (!mmfileUrls.readInt(&curSize)) {
+        if (!mmfileUrls.readDecimal(&curSize)) {
             g_logger->error("cannot read url length from shared file with urls, error code : [%i]", GetLastError());
             return 1;
         }

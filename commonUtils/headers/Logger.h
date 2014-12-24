@@ -19,7 +19,7 @@ private:
     bool isMuted_;
     bool addPidPrefix_;
 
-    char* _addPrefixAndPrint(const char* prefix, const char* format, va_list arguments);
+    void _addPrefixAndPrint(const char* prefix, const char* format, va_list arguments);
 public:
     Logger(const char *filename, 
            bool isNewFile = false, 

@@ -16,6 +16,7 @@ using std::string;
 
 static const set<string> CONTROLLED_TASKMANAGERS = { "taskmgr.exe" };
 
+
 #if defined _M_X64
 static const string TASKMGR_HOOK_DLL_NAME = "..\\indlls\\taskmgrHookDll64.dll";
 #elif defined _M_IX86
@@ -75,10 +76,6 @@ static void hookTaskmanagers(set<DWORD> &hookedPids, Logger &logger, DllInjector
     }
 }
 
-static void prepareSharedFile(my_shared_mem::MemMappedFile &file) {
-
-}
-
 static void parseCmdLine(LPSTR lpCmdLine, unsigned long &sessionTime, DWORD &procControllPID, int &controlStab) {
     sscanf_s(lpCmdLine, "%lu %i %lu ", &sessionTime, &controlStab, &procControllPID);
 }
@@ -92,7 +89,6 @@ int CALLBACK WinMain(
 {
     Logger logger("..\\ProcessControl\\logging\\taskmgrHooker_log.txt", true);
     DllInjector dllInjector;
-    my_shared_mem::MemMappedFile sharedFile;
 
     logger.info("cmd line: %s", lpCmdLine);
 
@@ -102,16 +98,34 @@ int CALLBACK WinMain(
 
     parseCmdLine(lpCmdLine, sessionTime, procControllPID, waitTime);
 
+    const char SHARED_FILE_WITH_PIDS_NAME[] = "Global\\TaskmgrHookerPIDSFile";
+    const size_t MAX_DIGIT_NUM = 15;
+
+    // writing to shared file
+    logger.info("Creating shared file to write pids");
+    my_shared_mem::MemMappedFile sharedFile;
+    if (!sharedFile.create(SHARED_FILE_WITH_PIDS_NAME, (MAX_DIGIT_NUM + 1) * 2)) {
+        logger.error("Cannot create shared file to write pids, error: %lu", GetLastError());
+        return 1;
+    }
+    logger.info("Writing process control pid: %lu", procControllPID);
+    sharedFile.writeDecimal(procControllPID);
+    logger.info("Writing taskmgr hooker pid: %lu", GetCurrentProcessId());
+    sharedFile.writeDecimal(GetCurrentProcessId());
+
     logger.info("Session duration = %lu ; ProcessControll.exe pid = %lu ; Controll Stab = %i", 
                 sessionTime,
                 procControllPID,
                 waitTime);
 
     set<DWORD> hookedPids = {};
-    while (true) {
-        Sleep(waitTime);
-        logger.info("working...");
+    DWORD startTime = GetTickCount();
+    do {
         hookTaskmanagers(hookedPids, logger, dllInjector);
-    }
+        Sleep(waitTime);
+    } while (GetTickCount() - startTime < sessionTime);
+
+    sharedFile.close();
+
     return 0;
 }
