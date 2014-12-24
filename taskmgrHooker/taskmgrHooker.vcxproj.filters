@@ -21,6 +21,9 @@
     <ClInclude Include="..\commonUtils\headers\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\commonUtils\headers\MemMapFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\commonUtils\sources\DllInjector.cpp">
@@ -30,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\commonUtils\sources\Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

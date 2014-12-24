@@ -18,10 +18,10 @@
     <ClCompile Include="..\commonUtils\sources\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\commonUtils\sources\memmapfile.cpp">
+    <ClCompile Include="sources\browserHookMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sources\browserHookMain.cpp">
+    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

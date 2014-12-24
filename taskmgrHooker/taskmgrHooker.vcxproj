@@ -153,10 +153,12 @@
   <ItemGroup>
     <ClInclude Include="..\commonUtils\headers\DllInjector.h" />
     <ClInclude Include="..\commonUtils\headers\Logger.h" />
+    <ClInclude Include="..\commonUtils\headers\MemMapFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\commonUtils\sources\DllInjector.cpp" />
     <ClCompile Include="..\commonUtils\sources\Logger.cpp" />
+    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp" />
     <ClCompile Include="sources\taskmgrHookerMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

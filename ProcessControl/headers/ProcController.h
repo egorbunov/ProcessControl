@@ -73,6 +73,9 @@ private:
 
     static const string CONTROLLED_BROWSERS[];
 
+    /** @brief   how long started session will last (in ms) */
+    unsigned long _sessionTime;
+
     HANDLE _taskmgrHookerProcess;
 
     BOOL _is64bitWindows;
@@ -167,7 +170,7 @@ public:
 
     int control();
 
-    void start();
+    void start(unsigned long sessionTime);
 
     void stop();
 

@@ -445,15 +445,24 @@ int ProcController::_startTaskmgrHooker() {
         taskmgrProcessName = TASKMGR_HOOKER_PROCESS_86;
     }
 
-    WCHAR args[100];
+    // creating command line to pass to taskmgr hooker process
+    // taskmgr hooker proc. need to know PID of ProcessControll process,
+    // session last time and control stab value
+    WCHAR args[150];
+
     WCHAR strpid[15];
     DWORD pid = GetCurrentProcessId();
     _ultow_s(pid, strpid, 10);
 
-    WCHAR strWait[5];
+    WCHAR strWait[15];
     _itow_s(CONTROL_STAB, strWait, 10);
 
+    WCHAR strSessionTime[20];
+    _ultow_s(_sessionTime, strSessionTime, 10);
+
     wcscat_s(args, taskmgrProcessName);
+    wcscat_s(args, L" ");
+    wcscat_s(args, strSessionTime);
     wcscat_s(args, L" ");
     wcscat_s(args, strWait);
     wcscat_s(args, L" ");
@@ -480,8 +489,9 @@ int ProcController::_startTaskmgrHooker() {
     return 0;
 }
 
-void ProcController::start() {
-    this->_createSessionSharedFiles();
+void ProcController::start(unsigned long sessionTime) {
+    _sessionTime = sessionTime;
+    _createSessionSharedFiles();
 
     // running taskmanager hooking process
     if (_startTaskmgrHooker()) {

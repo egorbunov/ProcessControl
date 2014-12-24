@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\commonUtils\sources\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\commonUtils\sources\memmapfile.cpp">
+    <ClCompile Include="sources\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClInclude Include="..\commonUtils\headers\MemMapFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="definitions.h">
+    <ClInclude Include="headers\definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

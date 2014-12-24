@@ -8,21 +8,22 @@
 
 #include "..\..\commonUtils\headers\Logger.h"
 #include "..\..\commonUtils\headers\DllInjector.h"
+#include "..\..\commonUtils\headers\MemMapFile.h"
 
 using std::vector;
 using std::set;
 using std::string;
 
-const set<string> CONTROLLED_TASKMANAGERS = { "taskmgr.exe" };
+static const set<string> CONTROLLED_TASKMANAGERS = { "taskmgr.exe" };
 
 #if defined _M_X64
-const string TASKMGR_HOOK_DLL_NAME = "..\\indlls\\taskmgrHookDll64.dll";
+static const string TASKMGR_HOOK_DLL_NAME = "..\\indlls\\taskmgrHookDll64.dll";
 #elif defined _M_IX86
-const string TASKMGR_HOOK_DLL_NAME = "..\\indlls\\taskmgrHookDll86.dll";
+static const string TASKMGR_HOOK_DLL_NAME = "..\\indlls\\taskmgrHookDll86.dll";
 #endif
 
 
-int hookTaskmgrProcess(DWORD id, Logger &logger, DllInjector &dllInjector) {
+static int hookTaskmgrProcess(DWORD id, Logger &logger, DllInjector &dllInjector) {
     logger.log("INFO: Injecting dll %s into browser process : %lu", TASKMGR_HOOK_DLL_NAME.c_str(), id);
     if (dllInjector.inject(id, TASKMGR_HOOK_DLL_NAME)) {
         logger.log("ERROR: Cannot inject dll.");
@@ -31,7 +32,7 @@ int hookTaskmgrProcess(DWORD id, Logger &logger, DllInjector &dllInjector) {
     return 0;
 }
 
-void hookTaskmanagers(set<DWORD> &hookedPids, Logger &logger, DllInjector &dllInjector) {
+static void hookTaskmanagers(set<DWORD> &hookedPids, Logger &logger, DllInjector &dllInjector) {
     const int maxSize = 500; //max process name length
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
     PROCESSENTRY32 pEntry;
@@ -74,6 +75,14 @@ void hookTaskmanagers(set<DWORD> &hookedPids, Logger &logger, DllInjector &dllIn
     }
 }
 
+static void prepareSharedFile(my_shared_mem::MemMappedFile &file) {
+
+}
+
+static void parseCmdLine(LPSTR lpCmdLine, unsigned long &sessionTime, DWORD &procControllPID, int &controlStab) {
+    sscanf(lpCmdLine, "%lu %lu %i", sessionTime, procControllPID, controlStab);
+}
+
 int CALLBACK WinMain(
     _In_  HINSTANCE hInstance,
     _In_  HINSTANCE hPrevInstance,
@@ -83,6 +92,7 @@ int CALLBACK WinMain(
 {
     Logger logger("..\\ProcessControl\\logging\\taskmgrHooker_log.txt", true);
     DllInjector dllInjector;
+    my_shared_mem::MemMappedFile sharedFile;
 
     logger.log("INFO: cmd line: %s", lpCmdLine);
     DWORD waitTime = 500;

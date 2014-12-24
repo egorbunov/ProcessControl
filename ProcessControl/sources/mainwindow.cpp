@@ -139,18 +139,12 @@ void MainWindow::collapseToTray()
 
     // setting current session mode
     this->processController.setSessionMode(name);
-    this->processController.start();
-
-    // starting timer for control stabs - every CONTOL_STAB ms it will run function
-    // for stopping restricted programs and injecting dll with restriction into browsers
-    connect(controlTimer, SIGNAL(timeout()), this, SLOT(controlStab()));
-    controlTimer->start(CONTROL_STAB);
 
     // getting time of session stand
-    int sessionStand;
+    unsigned long sessionStand;
 
     if (ui.checkTillDown->isChecked()) {
-        sessionStand = INT_MAX;
+        sessionStand = ULLONG_MAX;
         // tray icon refresh tooltip
         trayIcon->setToolTip("Process Control\nMode: " + QString(name.c_str()) + "\nTime left: till shutdown");
     }
@@ -165,11 +159,16 @@ void MainWindow::collapseToTray()
         refreshTimer->start(REFRESH_TRAY_STAB);
     }
 
+    // starting timer for control stabs - every CONTOL_STAB ms it will run function
+    // for stopping restricted programs and injecting dll with restriction into browsers
+    connect(controlTimer, SIGNAL(timeout()), this, SLOT(controlStab()));
+    controlTimer->start(CONTROL_STAB);
 
 
     QMessageBox::about(this, tr("Process control"),
         tr("The program will keep running in the "
         "system tray. Reboot to prematurely terminate program."));
+
     this->hide();
 
     // starting end session timer
@@ -180,6 +179,9 @@ void MainWindow::collapseToTray()
 
     trayIcon->setVisible(true);
     trayIcon->show();
+
+    // starting main logic
+    this->processController.start(sessionStand);
 }
 
 void MainWindow::closeModeCreationDialog()

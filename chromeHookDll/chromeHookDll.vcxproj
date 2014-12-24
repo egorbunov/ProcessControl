@@ -236,7 +236,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\commonUtils\sources\Logger.cpp" />
-    <ClCompile Include="..\commonUtils\sources\memmapfile.cpp" />
+    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp" />
     <ClCompile Include="sources\browserHookMain.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -95,13 +95,13 @@
     <ClCompile Include="sources\UrlEditDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sources\mode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\commonUtils\sources\DllInjector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
