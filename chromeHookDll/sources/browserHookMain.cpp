@@ -58,7 +58,6 @@ __declspec(dllexport) int WINAPI MyGetAddrInfo(_In_opt_  PCSTR pNodeName,
         for (int i = 0; i < g_urlNum; ++i) {
             if (g_urls[i] != NULL) {
                 if (strstr(g_urls[i], pNodeName) != NULL) {
-                    //g_logger->log("INFO: site blocked [%s]", g_urls[i]);
                     SetLastError(WSAHOST_NOT_FOUND);
                     WSASetLastError(WSAHOST_NOT_FOUND);
                     return WSAHOST_NOT_FOUND;
@@ -78,34 +77,34 @@ int readRestrictedUrls()
 
     // reading sizes
     my_shared_mem::MemMappedFile mmfileSizes;
-    g_logger->log("INFO: opening shared file with size.");
+    g_logger->info("opening shared file with size.");
     if (!mmfileSizes.openExisting(sharedFileWithSizesName, (MAX_DIGIT_NUMBER + 1) * 2, FILE_MAP_READ)) {
-        g_logger->log("ERROR: cannot open shared file for size of urls, error code : [%i]", GetLastError());
+        g_logger->error("cannot open shared file for size of urls, error code : [%i]", GetLastError());
         return 1;
     }
     int urlsFileSize;
     if (!mmfileSizes.readInt(&urlsFileSize)) {
-        g_logger->log("ERROR: cannot read size from shared file, error code : [%i]", GetLastError());
+        g_logger->error("cannot read size from shared file, error code : [%i]", GetLastError());
         return 1;
     }
     int urlNum;
     if (!mmfileSizes.readInt(&urlNum)) {
-        g_logger->log("ERROR: cannot read number of urls from shared file, error code : [%i]", GetLastError());
+        g_logger->error("cannot read number of urls from shared file, error code : [%i]", GetLastError());
         return 1;
     }
 
-    g_logger->log("INFO: size = %i", urlsFileSize);
-    g_logger->log("INFO: number of urls = %i", urlNum);
+    g_logger->info("size = %i", urlsFileSize);
+    g_logger->info("number of urls = %i", urlNum);
     
     mmfileSizes.close();
 
     // reading urls
     my_shared_mem::MemMappedFile mmfileUrls;
-    g_logger->log("INFO: opening shared file with urls.");
+    g_logger->info("opening shared file with urls.");
     bool res = mmfileUrls.openExisting(sharedFileWithUrlsName, urlsFileSize, FILE_MAP_READ);
 
     if (!res) {
-        g_logger->log("ERROR: cannot open shared file with urls, error code : [%i]", GetLastError());
+        g_logger->error("cannot open shared file with urls, error code : [%i]", GetLastError());
         return 1;
     }
 
@@ -113,15 +112,15 @@ int readRestrictedUrls()
     int curSize;
     for (int i = 0; i < urlNum; ++i) {
         if (!mmfileUrls.readInt(&curSize)) {
-            g_logger->log("ERROR: cannot read url length from shared file with urls, error code : [%i]", GetLastError());
+            g_logger->error("cannot read url length from shared file with urls, error code : [%i]", GetLastError());
             return 1;
         }
         g_urls[i] = new char[curSize + 1];
         if (mmfileUrls.readLine(g_urls[i]) == NULL) {
-            g_logger->log("ERROR: cannot read url from shared file with urls, error code : [%i]", GetLastError());
+            g_logger->error("cannot read url from shared file with urls, error code : [%i]", GetLastError());
             return 1;
         }
-        g_logger->log("INFO: Url read = '%s'", g_urls[i]);
+        g_logger->info("Url read = '%s'", g_urls[i]);
     }
 
     mmfileUrls.close();
@@ -144,22 +143,22 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
         strcat_s(g_logfilename, ".txt");
         g_logger = new Logger(g_logfilename, true);
 
-        g_logger->log("INFO: Dll process attach.");
+        g_logger->info("Dll process attach.");
 
         readRestrictedUrls();
 
-        g_logger->log("INFO: initializing hook");
+        g_logger->info("initializing hook");
         // Creating a HOOK
         if (MH_Initialize() != MH_OK) {
-            g_logger->log("ERROR: Cannot initialize minhook!");
+            g_logger->error("Cannot initialize minhook!");
             return 1;
         }
         if (MH_CreateHook(&getaddrinfo, &MyGetAddrInfo, reinterpret_cast<void**>(&mGetAddrInfo)) != MH_OK) {
-            g_logger->log("INFO: Cannot create hook!");
+            g_logger->info("Cannot create hook!");
             return 1;
         }
         if (MH_EnableHook(&getaddrinfo) != MH_OK) {
-            g_logger->log("INFO: Cannot enable hook!");
+            g_logger->info("Cannot enable hook!");
             return 1;
         }
 
@@ -170,18 +169,18 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 
     }
     else if (dwReason == DLL_THREAD_ATTACH) {
-        g_logger->log("INFO: Dll thread attach.");
+        g_logger->info("Dll thread attach.");
     }
     else if (dwReason == DLL_PROCESS_DETACH) {
-        g_logger->log("INFO: Dll detach.");
+        g_logger->info("Dll detach.");
 
         if (MH_DisableHook(&getaddrinfo) != MH_OK) {
-            g_logger->log("ERROR: Cannot disable hook!");
+            g_logger->error("Cannot disable hook!");
             return 1;
         }
 
         if (MH_Uninitialize() != MH_OK) {
-            g_logger->log("ERROR: Cannot uninit minhook!");
+            g_logger->error("Cannot uninit minhook!");
             return 1;
         }
 

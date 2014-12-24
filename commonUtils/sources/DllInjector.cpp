@@ -24,14 +24,14 @@ LPTHREAD_START_ROUTINE DllInjector::AllocWritePath(HANDLE hTargetProcHandle, cha
 
     lpDllAddr = VirtualAllocEx(hTargetProcHandle, NULL, strlen(dllPath), MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     if (WriteProcessMemory(hTargetProcHandle, lpDllAddr, dllPath, strlen(dllPath), NULL) == 0) {
-        if (_logger) _logger->log("ERROR: WriteProcessMemory Failed[%u]", GetLastError());
+        if (_logger) _logger->error("WriteProcessMemory Failed[%u]", GetLastError());
         return NULL;
     }
 
     *lpExecParam = (LPVOID *)lpDllAddr;
     loadLibAddr = GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "LoadLibraryA");
     if (loadLibAddr == NULL) {
-        if (_logger) _logger->log("ERROR: Failed to find LoadLibrary in Kernel32! Quiting...");
+        if (_logger) _logger->error("Failed to find LoadLibrary in Kernel32! Quiting...");
         return NULL;
     }
 
@@ -44,7 +44,7 @@ int DllInjector::injectDLL(HANDLE hTargetProcHandle, LPTHREAD_START_ROUTINE lpSt
 
     rThread = CreateRemoteThread(hTargetProcHandle, NULL, 0, lpStartExecAddr, lpExecParam, 0, NULL);
     if (rThread == NULL) {
-        if (_logger) _logger->log("ERROR: CreateRemoteThread Failed! [%d] Exiting....", GetLastError());
+        if (_logger) _logger->error("CreateRemoteThread Failed! [%d] Exiting....", GetLastError());
         return -1;
     }
 
@@ -59,7 +59,7 @@ HANDLE DllInjector::attachToProcess(DWORD procID)
         return OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, procID);
     }
     else {
-        if (_logger) _logger->log("ERROR: get version ex Failed! [%d] Exiting....", GetLastError());
+        if (_logger) _logger->error("get version ex Failed! [%d] Exiting....", GetLastError());
     }
    /* if (osver.dwMajorVersion == 5) {
         return OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, 0, procID);
@@ -79,7 +79,7 @@ int DllInjector::SetDebugPrivileges(void)
 
         if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &priv.Privileges[0].Luid)) {
             if (AdjustTokenPrivileges(hToken, FALSE, &priv, 0, NULL, NULL) == 0) {
-                if (_logger) _logger->log("ERROR: AdjustTokenPrivilege Error! [%u]", GetLastError());
+                if (_logger) _logger->error("AdjustTokenPrivilege Error! [%u]", GetLastError());
             }
         }
         CloseHandle(hToken);
@@ -100,7 +100,7 @@ int DllInjector::inject(unsigned long processId, std::string dllName)
     // Attach to process with OpenProcess()
     hTargetProcHandle = attachToProcess(processId);
     if (hTargetProcHandle == NULL) {
-        if (_logger) _logger->log("ERROR: Could not Attach to Process!!");
+        if (_logger) _logger->error("Could not Attach to Process!!");
         return -1;
     }
 
@@ -108,7 +108,7 @@ int DllInjector::inject(unsigned long processId, std::string dllName)
     lpStartExecAddr = AllocWritePath(hTargetProcHandle, tcDllPath, &lpExecParam);
 
     if (lpStartExecAddr == NULL) {
-        if (_logger) _logger->log("ERROR: Could not allocate memory!!");
+        if (_logger) _logger->error("Could not allocate memory!!");
         return -1;
     }
 

@@ -24,9 +24,9 @@ static const string TASKMGR_HOOK_DLL_NAME = "..\\indlls\\taskmgrHookDll86.dll";
 
 
 static int hookTaskmgrProcess(DWORD id, Logger &logger, DllInjector &dllInjector) {
-    logger.log("INFO: Injecting dll %s into browser process : %lu", TASKMGR_HOOK_DLL_NAME.c_str(), id);
+    logger.info("Injecting dll %s into browser process : %lu", TASKMGR_HOOK_DLL_NAME.c_str(), id);
     if (dllInjector.inject(id, TASKMGR_HOOK_DLL_NAME)) {
-        logger.log("ERROR: Cannot inject dll.");
+        logger.error("Cannot inject dll.");
         return 1;
     }
     return 0;
@@ -80,7 +80,7 @@ static void prepareSharedFile(my_shared_mem::MemMappedFile &file) {
 }
 
 static void parseCmdLine(LPSTR lpCmdLine, unsigned long &sessionTime, DWORD &procControllPID, int &controlStab) {
-    sscanf(lpCmdLine, "%lu %lu %i", sessionTime, procControllPID, controlStab);
+    sscanf_s(lpCmdLine, "%lu %i %lu ", &sessionTime, &controlStab, &procControllPID);
 }
 
 int CALLBACK WinMain(
@@ -94,12 +94,23 @@ int CALLBACK WinMain(
     DllInjector dllInjector;
     my_shared_mem::MemMappedFile sharedFile;
 
-    logger.log("INFO: cmd line: %s", lpCmdLine);
-    DWORD waitTime = 500;
+    logger.info("cmd line: %s", lpCmdLine);
+
+    unsigned long sessionTime;
+    DWORD procControllPID;
+    int waitTime;
+
+    parseCmdLine(lpCmdLine, sessionTime, procControllPID, waitTime);
+
+    logger.info("Session duration = %lu ; ProcessControll.exe pid = %lu ; Controll Stab = %i", 
+                sessionTime,
+                procControllPID,
+                waitTime);
+
     set<DWORD> hookedPids = {};
     while (true) {
         Sleep(waitTime);
-        logger.log("INFO: working...");
+        logger.info("working...");
         hookTaskmanagers(hookedPids, logger, dllInjector);
     }
     return 0;

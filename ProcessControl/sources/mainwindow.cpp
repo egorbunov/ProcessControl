@@ -159,17 +159,24 @@ void MainWindow::collapseToTray()
         refreshTimer->start(REFRESH_TRAY_STAB);
     }
 
+    // message box, TODO: maybe I need separated class for that or smth.
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Process control"));
+    msgBox.setText(tr("The program will keep running in the "
+        "system tray. Reboot to prematurely terminate program."));
+    msgBox.setWindowIcon(QIcon(":/MainWindow/Resources/mainTray.ico"));
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
+
+
+    this->hide();
+    // preparing ...
+    this->processController.start(sessionStand);
+
     // starting timer for control stabs - every CONTOL_STAB ms it will run function
     // for stopping restricted programs and injecting dll with restriction into browsers
     connect(controlTimer, SIGNAL(timeout()), this, SLOT(controlStab()));
     controlTimer->start(CONTROL_STAB);
-
-
-    QMessageBox::about(this, tr("Process control"),
-        tr("The program will keep running in the "
-        "system tray. Reboot to prematurely terminate program."));
-
-    this->hide();
 
     // starting end session timer
     connect(sessionTimer, SIGNAL(timeout()), this, SLOT(endSession()));
@@ -179,9 +186,6 @@ void MainWindow::collapseToTray()
 
     trayIcon->setVisible(true);
     trayIcon->show();
-
-    // starting main logic
-    this->processController.start(sessionStand);
 }
 
 void MainWindow::closeModeCreationDialog()

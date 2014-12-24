@@ -1,47 +1,81 @@
 #include "../headers/Logger.h"
 
-Logger::Logger(const char *filename, bool isNewFile) {
-    filename_ = new char[strlen(filename) + 1];
-    strcpy_s(filename_, (strlen(filename) + 1) * sizeof(char), filename);
+Logger::Logger(const char *filename, bool isNewFile, bool addPidPrefix, bool isMuted) {
+    addPidPrefix_ = addPidPrefix;
+    isMuted_ = isMuted;
+    if (!isMuted_) {
+        filename_ = new char[strlen(filename) + 1];
+        strcpy_s(filename_, (strlen(filename) + 1) * sizeof(char), filename);
 
-    errno_t err;
-    if (isNewFile)
-        err = fopen_s(&pfile_, filename, "wt");
-    else
-        err = fopen_s(&pfile_, filename, "wt+");
-    if (err != 0) {
-        throw "Cannot open file";
+        errno_t err;
+        if (isNewFile)
+            err = fopen_s(&pfile_, filename, "wt");
+        else
+            err = fopen_s(&pfile_, filename, "wt+");
+        if (err != 0) {
+            throw "Cannot open file";
+        }
+        fclose(pfile_);
     }
-    fclose(pfile_);
 }
 
-void Logger::log(const char *format, ...) {
+char* Logger::_addPrefixAndPrint(const char* prefix, const char* format, va_list arguments) {
     if (fopen_s(&pfile_, filename_, "a+") != 0) {
         throw "Cannot log to file (cannot open log file)";
     }
 
-    // adding prefix
     const int addLen = 25; // additional length for prefix
     const int ulongDigitNum = 15; // just enough
-    int len = (int) strlen(format) + addLen;
-    char* newFormat = new char[strlen(format) + addLen];
-    char prefix[addLen] = "[";
-    char strpid[ulongDigitNum];
-    _ultoa_s(GetCurrentProcessId(), strpid, 10);
-    strcat_s(prefix, strpid);
-    strcat_s(prefix, "] ");
-    strcpy_s(newFormat, strlen(format) + addLen, prefix);
-    strcat_s(newFormat, strlen(format) + addLen, format);
+    int len = (int)strlen(format) + addLen;
+
+    // creating prefix
+    char* newFormat = new char[len];
+
+    char wholePrefix[addLen] = "";
+    if (addPidPrefix_) {
+        strcat_s(wholePrefix, "[");
+        char strpid[ulongDigitNum];
+        _ultoa_s(GetCurrentProcessId(), strpid, 10);
+        strcat_s(wholePrefix, strpid);
+        strcat_s(wholePrefix, "] ");
+    }
+    strcat_s(wholePrefix, prefix);
+    strcpy_s(newFormat, len, wholePrefix);
+    strcat_s(newFormat, len, format);
 
     // printing
-    va_list arguments;
-    va_start(arguments, format);
     vfprintf(pfile_, newFormat, arguments);
-    va_end(arguments);
     fprintf(pfile_, "\n");
 
     delete[] newFormat;
     fclose(pfile_);
+}
+
+void Logger::log(const char *format, ...) {
+    if (!isMuted_) {
+        va_list arguments;
+        va_start(arguments, format);
+        _addPrefixAndPrint("", format, arguments);
+        va_end(arguments);
+    }
+}
+
+void Logger::info(const char *format, ...) {
+    if (!isMuted_) {
+        va_list arguments;
+        va_start(arguments, format);
+        _addPrefixAndPrint("INFO: ", format, arguments);
+        va_end(arguments);
+    }
+}
+
+void Logger::error(const char *format, ...) {
+    if (!isMuted_) {
+        va_list arguments;
+        va_start(arguments, format);
+        _addPrefixAndPrint("ERROR: ", format, arguments);
+        va_end(arguments);
+    }
 }
 
 Logger::~Logger() {

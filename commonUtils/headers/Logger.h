@@ -16,10 +16,19 @@ class Logger {
 private:
     FILE *pfile_;
     char *filename_;
+    bool isMuted_;
+    bool addPidPrefix_;
+
+    char* _addPrefixAndPrint(const char* prefix, const char* format, va_list arguments);
 public:
-    Logger(const char *filename, bool isNewFile = false);
+    Logger(const char *filename, 
+           bool isNewFile = false, 
+           bool addPidPrefix = true,
+           bool isMuted = false);
     ~Logger();
     void log(const char *format, ...);
+    void info(const char *format, ...);
+    void error(const char *format, ...);
 };
 
 #endif

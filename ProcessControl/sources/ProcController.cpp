@@ -365,7 +365,7 @@ int ProcController::_createSessionSharedFiles() {
 
     // creating file with sizes 
 
-    _logger.log("INFO: creating file with size of restricted urls");
+    _logger.info("creating file with size of restricted urls");
 
     /*
     (MAX_DIGIT_NUMBER + 1) * (2) - number of symbols (bytes) in first shared file.
@@ -376,7 +376,7 @@ int ProcController::_createSessionSharedFiles() {
     I suppose that every line of the file can have max length = (MAX_DIGIT_NUMBER + 1)
     */
     if (!_mmfileSizes.create(sharedSizeFileName, (MAX_DIGIT_NUMBER + 1) * 2)) {
-        _logger.log("ERROR: cannot create shared file for size of urls.");
+        _logger.error("cannot create shared file for size of urls.");
         return 1;
     }
     char num[MAX_DIGIT_NUMBER];
@@ -389,7 +389,7 @@ int ProcController::_createSessionSharedFiles() {
 
     char sharedUrlsFilename[] = "Global\\ProcessControlAppRestrictedURLS";
     if (!_mmfileUrls.create(sharedUrlsFilename, size)) {
-        _logger.log("ERROR: cannot create shared file for urls.");
+        _logger.error("cannot create shared file for urls.");
         return 1;
     }
     for (int i = 0; i < urls.size(); ++i) {
@@ -421,9 +421,9 @@ void ProcController::_destroySessionSharedFiles() {
 
 int ProcController::_hookBrowserProcess(unsigned long pId)
 {
-    _logger.log("INFO: Injecting dll %s into browser process : %lu", CHROME_HOOK_DLL.c_str(), pId);
+    _logger.info("Injecting dll %s into browser process : %lu", CHROME_HOOK_DLL.c_str(), pId);
     if (_dllInjector.inject(pId, CHROME_HOOK_DLL)) {
-        _logger.log("ERROR: Cannot inject dll.");
+        _logger.error("Cannot inject dll.");
         return 1;
     }
     return 0;
@@ -481,7 +481,7 @@ int ProcController::_startTaskmgrHooker() {
         &pi)            // Pointer to PROCESS_INFORMATION structure
         )
     {
-        _logger.log("ERROR: cannot start taskmgr hooker! error code: %i", GetLastError());
+        _logger.error("cannot start taskmgr hooker! error code: %i", GetLastError());
         return 1;
     }
 
@@ -495,7 +495,7 @@ void ProcController::start(unsigned long sessionTime) {
 
     // running taskmanager hooking process
     if (_startTaskmgrHooker()) {
-        _logger.log("ERROR: cannot run taskmgr hooker!");
+        _logger.error("cannot run taskmgr hooker!");
     }
 }
 
