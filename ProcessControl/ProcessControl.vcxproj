@@ -33,7 +33,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -43,20 +43,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -84,7 +84,7 @@
     <_ProjectFileVersion>12.0.21005.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>..\bin\</OutDir>
     <IncludePath>headers;$(IncludePath)</IncludePath>
     <LibraryPath>$(QTDIR)\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
@@ -102,7 +102,7 @@
     <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>..\bin</OutDir>
     <IncludePath>headers;$(IncludePath)</IncludePath>
     <LibraryPath>$(QTDIR)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -298,7 +298,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="sources\DllInjector.cpp" />
+    <ClCompile Include="..\commonUtils\sources\DllInjector.cpp" />
     <ClCompile Include="sources\EndSessionDialog.cpp" />
     <ClCompile Include="sources\main.cpp" />
     <ClCompile Include="sources\MainWindow.cpp" />
@@ -309,13 +309,14 @@
     <ClCompile Include="sources\UrlEditDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\commonUtils\headers\DllInjector.h" />
     <ClInclude Include="..\commonUtils\headers\Logger.h" />
     <ClInclude Include="..\commonUtils\headers\MemMapFile.h" />
     <ClInclude Include="GeneratedFiles\ui_endsessiondialog.h" />
     <ClInclude Include="GeneratedFiles\ui_mainwindow.h" />
     <ClInclude Include="GeneratedFiles\ui_modecreationdialog.h" />
     <ClInclude Include="GeneratedFiles\ui_urleditdialog.h" />
-    <ClInclude Include="headers\DllInjector.h" />
+    <ClInclude Include="headers\commonDefs.h" />
     <ClInclude Include="headers\mode.h" />
     <ClInclude Include="headers\ProcController.h" />
     <ClInclude Include="headers\resource.h" />
@@ -621,7 +622,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="msvc2010" Qt5Version_x0020_x64="Qt5.4.0-msvc2013" MocOptions="" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="Qt5.4.0x86" Qt5Version_x0020_x64="Qt5.4.0-msvc2013" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

@@ -95,13 +95,13 @@
     <ClCompile Include="sources\UrlEditDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sources\DllInjector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\commonUtils\sources\MemMapFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\mode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\commonUtils\sources\DllInjector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,13 +162,16 @@
     <ClInclude Include="..\commonUtils\headers\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="headers\DllInjector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\commonUtils\headers\MemMapFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="headers\mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\commonUtils\headers\DllInjector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\commonDefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

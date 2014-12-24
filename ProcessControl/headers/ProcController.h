@@ -21,9 +21,9 @@
 
 #include "../../commonUtils/headers/memmapfile.h"
 #include "../../commonUtils/headers/Logger.h"
-#include "dllinjector.h"
+#include "../../commonUtils/headers/DllInjector.h"
 #include "mode.h"
-
+#include "commonDefs.h"
 
 using std::vector;
 using std::string;
@@ -64,12 +64,18 @@ private:
         TASK_MANAGER
     };
 
+
+    static const string CHROME_HOOK_DLL;
     static const string CHROME_HOOK_DLL_86;
-    static const string CHROME_HOOK_DLL_64;
-    static const string TASKMGR_HOOK_DLL_86;
-    static const string TASKMGR_HOOK_DLL_64;
+
+    static const LPCWSTR TASKMGR_HOOKER_PROCESS_86;
+    static const LPCWSTR TASKMGR_HOOKER_PROCESS_64;
+
     static const string CONTROLLED_BROWSERS[];
-    static const string CONTROLLED_TASKMANAGERS[];
+
+    HANDLE _taskmgrHookerProcess;
+
+    BOOL _is64bitWindows;
 
     DllInjector _dllInjector;
 
@@ -82,7 +88,6 @@ private:
     vector<Mode> _allModes;
 
     set<string> _controlledBrowsers;
-    set<string> _controlledTaskmanagers;
 
     set<DWORD> _hookedPids;
 
@@ -132,6 +137,8 @@ private:
     void _destroySessionSharedFiles();
 
     int _killProcessIfRestricted(const PROCESSENTRY32 &pEntry, const char* name);
+
+    int ProcController::_startTaskmgrHooker();
 public:
     const Mode& getMode(string name);
 
@@ -160,9 +167,9 @@ public:
 
     int control();
 
-    void init();
+    void start();
 
-    void uninit();
+    void stop();
 
     string getActiveModeName();
 

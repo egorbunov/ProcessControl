@@ -139,7 +139,7 @@ void MainWindow::collapseToTray()
 
     // setting current session mode
     this->processController.setSessionMode(name);
-    this->processController.init();
+    this->processController.start();
 
     // starting timer for control stabs - every CONTOL_STAB ms it will run function
     // for stopping restricted programs and injecting dll with restriction into browsers
@@ -289,7 +289,7 @@ int MainWindow::controlStab()
 
 int MainWindow::endSession()
 {
-    this->processController.uninit();
+    this->processController.stop();
     this->show();
     trayIcon->setVisible(false);
     trayIcon->hide();

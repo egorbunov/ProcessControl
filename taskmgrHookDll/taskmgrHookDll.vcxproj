@@ -91,7 +91,7 @@
     <LibraryPath>..\minhook\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)64</TargetName>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\ProcessControl\indlls\</OutDir>
+    <OutDir>..\indlls\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -160,11 +160,12 @@
   <ItemGroup>
     <ClCompile Include="..\commonUtils\sources\Logger.cpp" />
     <ClCompile Include="..\commonUtils\sources\memmapfile.cpp" />
-    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="sources\dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\commonUtils\headers\Logger.h" />
     <ClInclude Include="..\commonUtils\headers\MemMapFile.h" />
+    <ClInclude Include="headers\definitions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

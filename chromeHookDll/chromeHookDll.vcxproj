@@ -118,7 +118,7 @@
     <LibraryPath>..\minhook\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>..\minhook\include;$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)86</TargetName>
-    <OutDir>..\ProcessControl\indlls\</OutDir>
+    <OutDir>..\indlls\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

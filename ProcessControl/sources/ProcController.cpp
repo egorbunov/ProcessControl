@@ -2,13 +2,15 @@
 
 // ----------- Constants --------------
 
-const string ProcController::CHROME_HOOK_DLL_86 = "indlls\\chromeHookDll86.dll";
-const string ProcController::CHROME_HOOK_DLL_64 = "indlls\\chromeHookDll64.dll"; // TODO: do I need this?
-const string ProcController::TASKMGR_HOOK_DLL_86 = "indlls\\taskmgrHookDll86.dll";
-const string ProcController::TASKMGR_HOOK_DLL_64 = "indlls\\taskmgrHookDll64.dll";
+const string ProcController::CHROME_HOOK_DLL_86 = "..\\indlls\\chromeHookDll86.dll";
+const string ProcController::CHROME_HOOK_DLL = CHROME_HOOK_DLL_86;
+
+const LPCWSTR ProcController::TASKMGR_HOOKER_PROCESS_86 = L"..\\bin\\taskmgrHooker86.exe";
+const LPCWSTR ProcController::TASKMGR_HOOKER_PROCESS_64 = L"..\\bin\\taskmgrHooker64.exe";
+
+
 
 const string ProcController::CONTROLLED_BROWSERS[] = { "chrome.exe" };
-const string ProcController::CONTROLLED_TASKMANAGERS[] = { "taskmgr.exe" };
 
 //////////////////////////////////////////////////////////////
 
@@ -17,9 +19,11 @@ ProcController::ProcController() : _modsFilename("mode.txt"), _logger("logging\\
     loadMods();
     _dllInjector = DllInjector();
     _dllInjector.setLogger(&_logger);
+    _taskmgrHookerProcess = NULL;
+
+    _is64bitWindows = (bool)IsWow64Process(GetCurrentProcess(), &_is64bitWindows);
 
     _controlledBrowsers.insert(std::begin(CONTROLLED_BROWSERS), std::end(CONTROLLED_BROWSERS));
-    _controlledTaskmanagers.insert(std::begin(CONTROLLED_TASKMANAGERS), std::end(CONTROLLED_TASKMANAGERS));
 }
 
 ProcController::~ProcController()
@@ -288,7 +292,6 @@ int ProcController::control()
     const vector<string> &urls = _currentMode->getUrls();
 
     set<DWORD> openedBrowsersIds;
-    set<DWORD> openedTaskmngrsIds;
 
     while (hRes) {
         wcstombs(chStr, pEntry.szExeFile, maxSize * sizeof(WCHAR));
@@ -300,46 +303,28 @@ int ProcController::control()
             if (_controlledBrowsers.find(chStr) != _controlledBrowsers.end()) {
                 openedBrowsersIds.insert((DWORD)pEntry.th32ProcessID);
             } 
-            else {
-                // hooking, if that is supported taskmanager
-                if (_controlledTaskmanagers.find(chStr) != _controlledTaskmanagers.end())
-                    openedTaskmngrsIds.insert((DWORD)pEntry.th32ProcessID);
-            }
         }
 
         hRes = Process32Next(hSnapShot, &pEntry);
     }
     CloseHandle(hSnapShot);
 
-    vector<DWORD> tmp;
     vector<DWORD> closedIds;
     vector<DWORD> browsersForHookIds;
-    vector<DWORD> taskmngrsForHookIds;
 
-    // getting browsers and taskmng process ids, which already closed
+    // getting browsers process ids, which already closed
     set_difference(_hookedPids.begin(), _hookedPids.end(), openedBrowsersIds.begin(), openedBrowsersIds.end(),
-                   inserter(tmp, tmp.end()));
-    set_difference(closedIds.begin(), closedIds.end(), openedTaskmngrsIds.begin(), openedTaskmngrsIds.end(),
                    inserter(closedIds, closedIds.end()));
 
     // browsers ids, which we need to hook
     set_difference(openedBrowsersIds.begin(), openedBrowsersIds.end(), _hookedPids.begin(), _hookedPids.end(),
                    inserter(browsersForHookIds, browsersForHookIds.end()));
 
-    // taskmngrs ids, which we need to hook
-    set_difference(openedTaskmngrsIds.begin(), openedTaskmngrsIds.end(), _hookedPids.begin(), _hookedPids.end(),
-                   inserter(taskmngrsForHookIds, taskmngrsForHookIds.end()));
-
     for (vector<DWORD>::iterator it = closedIds.begin(); it != closedIds.end(); ++it)
         _hookedPids.erase(*it);
 
     for (vector<DWORD>::iterator it = browsersForHookIds.begin(); it != browsersForHookIds.end(); ++it) {
         _hookBrowserProcess(*it);
-        _hookedPids.insert(*it);
-    }
-
-    for (vector<DWORD>::iterator it = taskmngrsForHookIds.begin(); it != taskmngrsForHookIds.end(); ++it) {
-        _hookTaskmanagerProcess(*it);
         _hookedPids.insert(*it);
     }
 
@@ -434,29 +419,77 @@ void ProcController::_destroySessionSharedFiles() {
     _mmfileUrls.close();
 }
 
-int ProcController::_hookTaskmanagerProcess(unsigned long pId) {
-    _logger.log("INFO: Injecting dll %s into task manager process : %lu",TASKMGR_HOOK_DLL_86.c_str(), pId);
-    if (_dllInjector.inject(pId, TASKMGR_HOOK_DLL_86)) {
-        _logger.log("ERROR: Cannot inject dll.");
-        return 1;
-    }
-    return 0;
-}
-
 int ProcController::_hookBrowserProcess(unsigned long pId)
 {
-    _logger.log("INFO: Injecting dll %s into browser process : %lu", CHROME_HOOK_DLL_86.c_str(), pId);
-    if (_dllInjector.inject(pId, CHROME_HOOK_DLL_86)) {
+    _logger.log("INFO: Injecting dll %s into browser process : %lu", CHROME_HOOK_DLL.c_str(), pId);
+    if (_dllInjector.inject(pId, CHROME_HOOK_DLL)) {
         _logger.log("ERROR: Cannot inject dll.");
         return 1;
     }
     return 0;
 }
 
-void ProcController::init() {
-    this->_createSessionSharedFiles();
+int ProcController::_startTaskmgrHooker() {
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+    
+    LPCWSTR taskmgrProcessName;
+    if (_is64bitWindows) {
+        taskmgrProcessName = TASKMGR_HOOKER_PROCESS_64;
+    }
+    else {
+        taskmgrProcessName = TASKMGR_HOOKER_PROCESS_86;
+    }
+
+    WCHAR args[100];
+    WCHAR strpid[15];
+    DWORD pid = GetCurrentProcessId();
+    _ultow_s(pid, strpid, 10);
+
+    WCHAR strWait[5];
+    _itow_s(CONTROL_STAB, strWait, 10);
+
+    wcscat_s(args, taskmgrProcessName);
+    wcscat_s(args, L" ");
+    wcscat_s(args, strWait);
+    wcscat_s(args, L" ");
+    wcscat_s(args, strpid);
+
+    // Start the child process. 
+    if (!CreateProcess(taskmgrProcessName,   // No module name (use command line)
+        args,          // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi)            // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        _logger.log("ERROR: cannot start taskmgr hooker! error code: %i", GetLastError());
+        return 1;
+    }
+
+    _taskmgrHookerProcess = pi.hProcess;
+    return 0;
 }
 
-void ProcController::uninit() {
+void ProcController::start() {
+    this->_createSessionSharedFiles();
+
+    // running taskmanager hooking process
+    if (_startTaskmgrHooker()) {
+        _logger.log("ERROR: cannot run taskmgr hooker!");
+    }
+}
+
+void ProcController::stop() {
     this->_destroySessionSharedFiles();
+    TerminateProcess(_taskmgrHookerProcess, 0);
 }
