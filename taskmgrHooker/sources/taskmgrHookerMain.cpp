@@ -88,7 +88,7 @@ int CALLBACK WinMain(
     _In_  int nCmdShow
     )
 {
-    Logger logger(common_consts::TASKMGR_HOOKER_LOG_FILENAME, true, true, common_consts::IS_NO_LOGGING);
+    Logger logger(common_consts::TASKMGR_HOOKER_LOG_FILENAME, true, true, common_consts::IS_TASKMGR_HOOKER_LOGGER_MUTED);
 
     DllInjector dllInjector;
     unsigned long sessionTime;

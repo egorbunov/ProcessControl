@@ -141,7 +141,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
     if (dwReason == DLL_PROCESS_ATTACH) {
         char logFilename[common_consts::MAX_PATH_LENGTH];
         getLoggingFilename(logFilename, common_consts::MAX_PATH_LENGTH);
-        Logger logger(logFilename, true, true, common_consts::IS_NO_LOGGING);
+        Logger logger(logFilename, true, true, common_consts::IS_DLL_LOGGERS_MUTED);
 
         g_urlNum = 0;
 
@@ -169,7 +169,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
     else if (dwReason == DLL_PROCESS_DETACH) {
         char logFilename[common_consts::MAX_PATH_LENGTH];
         getLoggingFilename(logFilename, common_consts::MAX_PATH_LENGTH);
-        Logger logger(logFilename, false, true, common_consts::IS_NO_LOGGING);
+        Logger logger(logFilename, false, true, common_consts::IS_DLL_LOGGERS_MUTED);
 
         logger.info("Dll thread deatach.");
         if (MH_DisableHook(&getaddrinfo) != MH_OK) {

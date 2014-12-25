@@ -12,12 +12,9 @@ namespace common_consts {
     const char REL_LOGGING_PATH[] = "..\\logging";
     const char MAIN_LOG_FILENAME[] = "..\\logging\\main_log.txt";
     const char TASKMGR_HOOKER_LOG_FILENAME[] = "..\\logging\\taskmgr_hooker_log.txt";
-
-#if _DEBUG
-    const bool IS_NO_LOGGING = false;
-#else
-    const bool IS_NO_LOGGING = true;
-#endif
+    const bool IS_MAIN_LOGGER_MUTED = false;
+    const bool IS_TASKMGR_HOOKER_LOGGER_MUTED = false;
+    const bool IS_DLL_LOGGERS_MUTED = true;
 }
 
 namespace browser_hook_consts {

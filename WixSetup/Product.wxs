@@ -52,12 +52,11 @@
         <File Source="$(var.ProcessControl.TargetPath)" Id='ProcessControlEXE' KeyPath="yes" Checksum="yes"/>
       </Component>
       <!-- taskmgrHooker%ARCHITECTURE%.exe - supporting executable -->
-      <Component Id="TaskmgrHookerEXE" Guid="">
-        <?if $(var.Platform) = x86 ?>
-        <File Source="$(var.taskmgrHooker.TargetDir)\taskmgrHooker32.exe" Id='TaskmgrHookerEXE' KeyPath="yes" Checksum="yes"/>
-        <?else?>
-        <File Source="$(var.taskmgrHooker.TargetDir)\taskmgrHooker64.exe" Id='TaskmgrHookerEXE' KeyPath="yes" Checksum="yes"/>
-        <?endif?>
+      <Component Id="TaskmgrHooker32EXE" Guid="">
+        <File Source="$(var.taskmgrHooker.TargetDir)\taskmgrHooker32.exe" Id='FILE_TaskmgrHooker32EXE' KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="TaskmgrHooker64EXE" Guid="">
+        <File Source="$(var.taskmgrHooker.TargetDir)\taskmgrHooker64.exe" Id='FILE_TaskmgrHooker64EXE' KeyPath="yes" Checksum="yes"/>
       </Component>
       <!-- DLL's -->
       <Component Id="Qt5CoreDLL" Guid="{0263D992-827B-4BF6-AFB6-A9D5A37A27EF}">

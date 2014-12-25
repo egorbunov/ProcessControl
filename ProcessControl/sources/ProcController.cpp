@@ -17,7 +17,7 @@ const string ProcController::CONTROLLED_BROWSERS[] = { "chrome.exe" };
 
 ProcController::ProcController() : 
 _modsFilename(MODES_FILENAME),
-_logger(common_consts::MAIN_LOG_FILENAME, true, true, common_consts::IS_NO_LOGGING)
+_logger(common_consts::MAIN_LOG_FILENAME, true, true, common_consts::IS_MAIN_LOGGER_MUTED)
 {
     loadMods();
     _dllInjector = DllInjector();
