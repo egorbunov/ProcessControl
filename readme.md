@@ -5,6 +5,7 @@ Simple application for controlling your computer activity :)
 * You can create "task" with progress and list of programs and sites, which can't be opened during that "task".
 * If program is restricted, it can't be opened (it's automatically closes)
 * If site is restricted, it sometimes can't be opened in Chrome browser :D
+* You can't kill program process from taskmgr.exe
 
 ### Technologies
 * [min-hook][mh] library for creating simple function hooks
