@@ -24,18 +24,9 @@
 #pragma comment(lib, "libMinHook.x86.lib")
 #endif
 
-
-
-#define MAX_BUFFER_SIZE 1024 //1k
-#define INIT_URL_NUM 10
-
-
 // ----------------------------------- GLOBALS -----------------------------------------------
 char **g_urls;
 int g_urlNum;
-char g_logfilename[100] = "F:\\gitmain\\ProcessControlProj\\ProcessControl\\ProcessControl\\logging\\dll_log";
-Logger *g_logger;
-bool g_isReady;
 
 
 
@@ -52,9 +43,7 @@ __declspec(dllexport) int WINAPI MyGetAddrInfo(_In_opt_  PCSTR pNodeName,
     _In_opt_  const ADDRINFOA *pHints,
     _Out_     PADDRINFOA *ppResult)
 {
-    int compareAns = 0;
-    //MessageBox(NULL, pNodeName, "xxx", MB_OK);
-    if (g_isReady == true && g_urlNum != NULL) {
+    if (g_urlNum != 0) {
         for (int i = 0; i < g_urlNum; ++i) {
             if (g_urls[i] != NULL) {
                 if (strstr(g_urls[i], pNodeName) != NULL) {
@@ -69,42 +58,39 @@ __declspec(dllexport) int WINAPI MyGetAddrInfo(_In_opt_  PCSTR pNodeName,
 }
 
 
-int readRestrictedUrls()
+int readRestrictedUrls(Logger &logger)
 {
-    const size_t MAX_DIGIT_NUMBER = 5;
-    static const char *sharedFileWithSizesName = "Global\\ProcessControlAppSizes";
-    static const char *sharedFileWithUrlsName = "Global\\ProcessControlAppRestrictedURLS";
-
     // reading sizes
     my_shared_mem::MemMappedFile mmfileSizes;
-    g_logger->info("opening shared file with size.");
-    if (!mmfileSizes.openExisting(sharedFileWithSizesName, (MAX_DIGIT_NUMBER + 1) * 2, FILE_MAP_READ)) {
-        g_logger->error("cannot open shared file for size of urls, error code : [%i]", GetLastError());
+    logger.info("opening shared file with size.");
+    if (!mmfileSizes.openExisting(browser_hook_consts::SHARED_FILE_WITH_SIZES, 
+        (common_consts::UI_MAX_DIGIT_NUMBER + 1) * 2, FILE_MAP_READ)) {
+        logger.error("cannot open shared file for size of urls, error code : [%i]", GetLastError());
         return 1;
     }
     int urlsFileSize;
     if (!mmfileSizes.readDecimal(&urlsFileSize)) {
-        g_logger->error("cannot read size from shared file, error code : [%i]", GetLastError());
+        logger.error("cannot read size from shared file, error code : [%i]", GetLastError());
         return 1;
     }
     int urlNum;
     if (!mmfileSizes.readDecimal(&urlNum)) {
-        g_logger->error("cannot read number of urls from shared file, error code : [%i]", GetLastError());
+        logger.error("cannot read number of urls from shared file, error code : [%i]", GetLastError());
         return 1;
     }
 
-    g_logger->info("size = %i", urlsFileSize);
-    g_logger->info("number of urls = %i", urlNum);
+    logger.info("size = %i", urlsFileSize);
+    logger.info("number of urls = %i", urlNum);
     
     mmfileSizes.close();
 
     // reading urls
     my_shared_mem::MemMappedFile mmfileUrls;
-    g_logger->info("opening shared file with urls.");
-    bool res = mmfileUrls.openExisting(sharedFileWithUrlsName, urlsFileSize, FILE_MAP_READ);
+    logger.info("opening shared file with urls.");
+    bool res = mmfileUrls.openExisting(browser_hook_consts::SHARED_FILE_WITH_URLS, urlsFileSize, FILE_MAP_READ);
 
     if (!res) {
-        g_logger->error("cannot open shared file with urls, error code : [%i]", GetLastError());
+        logger.error("cannot open shared file with urls, error code : [%i]", GetLastError());
         return 1;
     }
 
@@ -112,79 +98,88 @@ int readRestrictedUrls()
     int curSize;
     for (int i = 0; i < urlNum; ++i) {
         if (!mmfileUrls.readDecimal(&curSize)) {
-            g_logger->error("cannot read url length from shared file with urls, error code : [%i]", GetLastError());
+            logger.error("cannot read url length from shared file with urls, error code : [%i]", GetLastError());
             return 1;
         }
         g_urls[i] = new char[curSize + 1];
         if (mmfileUrls.readLine(g_urls[i]) == NULL) {
-            g_logger->error("cannot read url from shared file with urls, error code : [%i]", GetLastError());
+            logger.error("cannot read url from shared file with urls, error code : [%i]", GetLastError());
             return 1;
         }
-        g_logger->info("Url read = '%s'", g_urls[i]);
+        logger.info("Url read = '%s'", g_urls[i]);
     }
 
     mmfileUrls.close();
 
     g_urlNum = urlNum;
-    g_isReady = true;
-
     return 0;
 }
 
 
+int getLoggingFilename(char *buffer, int bufSize) {
+    my_shared_mem::MemMappedFile file;
+    if (!file.openExisting(common_consts::SHARED_FILE_WITH_LOG_PATH, 
+        common_consts::MAX_PATH_LENGTH, FILE_MAP_READ)) {
+
+        return 1;
+    }
+
+    if (buffer == NULL || !file.readLine(buffer))
+        return 1;
+
+    strcat_s(buffer, bufSize, browser_hook_consts::LOG_FILE_SUFFIX);
+
+    DWORD pid = GetCurrentProcessId();
+    char strPid[common_consts::UL_MAX_DIGIT_NUMBER];
+    _ultoa_s(pid, strPid, common_consts::DECIMAL_NOTATION);
+    strcat_s(buffer, bufSize, strPid);
+    strcat_s(buffer, bufSize, ".txt");
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 {
     if (dwReason == DLL_PROCESS_ATTACH) {
-        g_isReady = false;
-        unsigned long pid = GetCurrentProcessId(); // hope process id will fit in integer
-        char strpid[12];
-        _ultoa_s(pid, strpid, 10);
-        strcat_s(g_logfilename, strpid);
-        strcat_s(g_logfilename, ".txt");
-        g_logger = new Logger(g_logfilename, true);
+        char logFilename[common_consts::MAX_PATH_LENGTH];
+        getLoggingFilename(logFilename, common_consts::MAX_PATH_LENGTH);
+        Logger logger(logFilename, true, true, common_consts::IS_NO_LOGGING);
 
-        g_logger->info("Dll process attach.");
+        g_urlNum = 0;
 
-        readRestrictedUrls();
+        logger.info("Dll process attach.");
 
-        g_logger->info("initializing hook");
+        readRestrictedUrls(logger);
+
+        logger.info("initializing hook");
         // Creating a HOOK
         if (MH_Initialize() != MH_OK) {
-            g_logger->error("Cannot initialize minhook!");
+            logger.error("Cannot initialize minhook!");
             return 1;
         }
         if (MH_CreateHook(&getaddrinfo, &MyGetAddrInfo, reinterpret_cast<void**>(&mGetAddrInfo)) != MH_OK) {
-            g_logger->info("Cannot create hook!");
+            logger.info("Cannot create hook!");
             return 1;
         }
         if (MH_EnableHook(&getaddrinfo) != MH_OK) {
-            g_logger->info("Cannot enable hook!");
+            logger.info("Cannot enable hook!");
             return 1;
         }
-
-        //if (MH_CreateHook(&connect, &detourConnect, reinterpret_cast<void**>(&fpConnect)) != MH_OK)
-        //    return 1;
-        //if (MH_EnableHook(&connect) != MH_OK)
-        //    return 1;
-
     }
     else if (dwReason == DLL_THREAD_ATTACH) {
-        g_logger->info("Dll thread attach.");
     }
     else if (dwReason == DLL_PROCESS_DETACH) {
-        g_logger->info("Dll detach.");
+        char logFilename[common_consts::MAX_PATH_LENGTH];
+        getLoggingFilename(logFilename, common_consts::MAX_PATH_LENGTH);
+        Logger logger(logFilename, false, true, common_consts::IS_NO_LOGGING);
 
+        logger.info("Dll thread deatach.");
         if (MH_DisableHook(&getaddrinfo) != MH_OK) {
-            g_logger->error("Cannot disable hook!");
+            logger.error("Cannot disable hook!");
             return 1;
         }
-
         if (MH_Uninitialize() != MH_OK) {
-            g_logger->error("Cannot uninit minhook!");
+            logger.error("Cannot uninit minhook!");
             return 1;
         }
-
-        //delete g_logger;
     }
     return TRUE;
 }

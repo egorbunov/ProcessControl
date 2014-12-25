@@ -309,6 +309,7 @@
     <ClCompile Include="sources\UrlEditDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\commonUtils\headers\constants.h" />
     <ClInclude Include="..\commonUtils\headers\DllInjector.h" />
     <ClInclude Include="..\commonUtils\headers\Logger.h" />
     <ClInclude Include="..\commonUtils\headers\MemMapFile.h" />

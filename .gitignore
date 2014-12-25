@@ -183,6 +183,5 @@ UpgradeLog*.htm
 FakesAssemblies/
 
 # Some stuff
-/ProcessControl/logging
-/ProcessControl/indlls/*.lib
-/ProcessControl/indlls/*.exp
+indlls/*.lib
+indlls/*.exp

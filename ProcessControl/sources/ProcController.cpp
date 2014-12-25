@@ -2,6 +2,8 @@
 
 // ----------- Constants --------------
 
+const char ProcController::MODES_FILENAME[] = "..\\data\\modes.txt";
+
 const string ProcController::CHROME_HOOK_DLL_86 = "..\\indlls\\chromeHookDll86.dll";
 const string ProcController::CHROME_HOOK_DLL = CHROME_HOOK_DLL_86;
 
@@ -9,12 +11,13 @@ const LPCWSTR ProcController::TASKMGR_HOOKER_PROCESS_86 = L"..\\bin\\taskmgrHook
 const LPCWSTR ProcController::TASKMGR_HOOKER_PROCESS_64 = L"..\\bin\\taskmgrHooker64.exe";
 
 
-
 const string ProcController::CONTROLLED_BROWSERS[] = { "chrome.exe" };
 
 //////////////////////////////////////////////////////////////
 
-ProcController::ProcController() : _modsFilename("mode.txt"), _logger("logging\\main_log.txt", true)
+ProcController::ProcController() : 
+_modsFilename(MODES_FILENAME),
+_logger(common_consts::MAIN_LOG_FILENAME, true, true, common_consts::IS_NO_LOGGING)
 {
     loadMods();
     _dllInjector = DllInjector();
@@ -37,7 +40,7 @@ int ProcController::loadMods()
     if (!in.good()) {
         in.close();
         wchar_t *wtext = (wchar_t *) malloc((_modsFilename.length() + 1) * sizeof(wchar_t));
-        mbstowcs(wtext, _modsFilename.c_str(), _modsFilename.length() + 1);//Plus null
+        mbstowcs(wtext, _modsFilename.c_str(), _modsFilename.length() + 1);
         HANDLE hFile = CreateFile(wtext,
             GENERIC_READ | GENERIC_WRITE,
             0,
@@ -354,19 +357,15 @@ int ProcController::editProgress(string name, int newProgress)
 }
 
 int ProcController::_createSessionSharedFiles() {
-    const size_t MAX_DIGIT_NUMBER = 5;
-    char sharedSizeFileName[] = "Global\\ProcessControlAppSizes";
-
     const vector<string> &urls = _currentMode->getUrls();
     int size = 0;
     for (int i = 0; i < urls.size(); ++i) {
-        size += urls[i].length() + 1 + MAX_DIGIT_NUMBER + 1;
+        size += urls[i].length() + 1 + common_consts::UI_MAX_DIGIT_NUMBER + 1;
     }
 
     // creating file with sizes 
 
     _logger.info("creating file with size of restricted urls");
-
     /*
     (MAX_DIGIT_NUMBER + 1) * (2) - number of symbols (bytes) in first shared file.
     First shared file will store:
@@ -375,11 +374,13 @@ int ProcController::_createSessionSharedFiles() {
     One number in one line.
     I suppose that every line of the file can have max length = (MAX_DIGIT_NUMBER + 1)
     */
-    if (!_mmfileSizes.create(sharedSizeFileName, (MAX_DIGIT_NUMBER + 1) * 2)) {
+    if (!_mmfileSizes.create(browser_hook_consts::SHARED_FILE_WITH_SIZES, 
+        (common_consts::UI_MAX_DIGIT_NUMBER + 1) * 2)) {
         _logger.error("cannot create shared file for size of urls.");
+
         return 1;
     }
-    char num[MAX_DIGIT_NUMBER];
+    char num[common_consts::UI_MAX_DIGIT_NUMBER];
     itoa(size, num, 10);
     _mmfileSizes.writeLine(num);
     itoa(urls.size(), num, 10);
@@ -387,36 +388,35 @@ int ProcController::_createSessionSharedFiles() {
 
     // creating file with urls
 
-    char sharedUrlsFilename[] = "Global\\ProcessControlAppRestrictedURLS";
-    if (!_mmfileUrls.create(sharedUrlsFilename, size)) {
+    if (!_mmfileUrls.create(browser_hook_consts::SHARED_FILE_WITH_URLS, size)) {
         _logger.error("cannot create shared file for urls.");
+
         return 1;
     }
     for (int i = 0; i < urls.size(); ++i) {
-        itoa(urls[i].length(), num, 10);
+        itoa(urls[i].length(), num, common_consts::DECIMAL_NOTATION);
         _mmfileUrls.writeLine(num);
         _mmfileUrls.writeLine(urls[i].c_str());
     }
 
-   /* my_shared_mem::MemMappedFile test;
-    bool ans = test.openExisting(sharedSizeFileName, (MAX_DIGIT_NUMBER + 1) * 2, FILE_MAP_READ);
-    int sz, cnt;
-    test.readInt(&sz);
-    test.readInt(&cnt);
+    // creating file which will store absolute path for log files
+    if (!_mmfileLoggingPath.create(common_consts::SHARED_FILE_WITH_LOG_PATH, common_consts::MAX_PATH_LENGTH)) {
+        _logger.error("cannot create shared file for logging path!");
 
-    test.close();
-    ans = test.openExisting(sharedUrlsFilename, sz, FILE_MAP_READ);
-    int x;
-    for (int i = 0; i < cnt; ++i) {
-        test.readInt(&x);
-    }*/
+        return 1;
+    }
+    char buffer[common_consts::MAX_PATH_LENGTH];
+    // getting logging path
+    GetFullPathNameA(common_consts::REL_LOGGING_PATH, common_consts::MAX_PATH_LENGTH, buffer, NULL);
+    _mmfileLoggingPath.writeLine(buffer);
+
     return 0;
-    
 }
 
 void ProcController::_destroySessionSharedFiles() {
     _mmfileSizes.close();
     _mmfileUrls.close();
+    _mmfileLoggingPath.close();
 }
 
 int ProcController::_hookBrowserProcess(unsigned long pId)
@@ -430,6 +430,7 @@ int ProcController::_hookBrowserProcess(unsigned long pId)
 }
 
 int ProcController::_startTaskmgrHooker() {
+    _logger.info("Starting taskmgr.exe hooker.");
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
@@ -448,17 +449,17 @@ int ProcController::_startTaskmgrHooker() {
     // creating command line to pass to taskmgr hooker process
     // taskmgr hooker proc. need to know PID of ProcessControll process,
     // session last time and control stab value
-    WCHAR args[150];
+    WCHAR args[common_consts::MAX_PATH_LENGTH + 3 * (1 + common_consts::UL_MAX_DIGIT_NUMBER)];
 
-    WCHAR strpid[15];
+    WCHAR strpid[common_consts::UL_MAX_DIGIT_NUMBER];
     DWORD pid = GetCurrentProcessId();
-    _ultow_s(pid, strpid, 10);
+    _ultow_s(pid, strpid, common_consts::DECIMAL_NOTATION);
 
-    WCHAR strWait[15];
-    _itow_s(CONTROL_STAB, strWait, 10);
+    WCHAR strWait[common_consts::UL_MAX_DIGIT_NUMBER];
+    _itow_s(CONTROL_STAB, strWait, common_consts::DECIMAL_NOTATION);
 
-    WCHAR strSessionTime[20];
-    _ultow_s(_sessionTime, strSessionTime, 10);
+    WCHAR strSessionTime[common_consts::UL_MAX_DIGIT_NUMBER];
+    _ultow_s(_sessionTime, strSessionTime, common_consts::DECIMAL_NOTATION);
 
     wcscat_s(args, taskmgrProcessName);
     wcscat_s(args, L" ");

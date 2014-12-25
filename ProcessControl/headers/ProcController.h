@@ -64,6 +64,7 @@ private:
         TASK_MANAGER
     };
 
+    static const char MODES_FILENAME[];
 
     static const string CHROME_HOOK_DLL;
     static const string CHROME_HOOK_DLL_86;
@@ -96,6 +97,7 @@ private:
 
     my_shared_mem::MemMappedFile _mmfileSizes;
     my_shared_mem::MemMappedFile _mmfileUrls;
+    my_shared_mem::MemMappedFile _mmfileLoggingPath;
 
     int loadMods();
 

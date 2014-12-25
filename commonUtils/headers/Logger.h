@@ -11,9 +11,11 @@
 #include <string.h>
 #include <stdarg.h>
 #include <Windows.h>
+#include "constants.h"
 
 class Logger {
 private:
+    static const int MAX_PREFIX_LEN = 15;
     FILE *pfile_;
     char *filename_;
     bool isMuted_;

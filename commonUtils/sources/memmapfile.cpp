@@ -155,7 +155,7 @@ void my_shared_mem::MemMappedFile::reset() {
 }
 
 bool my_shared_mem::MemMappedFile::readDecimal(int *dst) {
-    char num[12];
+    char num[common_consts::UI_MAX_DIGIT_NUMBER];
     if (this->readLine(num) == NULL)
         return false;
     *dst = atoi(num);
@@ -163,7 +163,7 @@ bool my_shared_mem::MemMappedFile::readDecimal(int *dst) {
 }
 
 bool my_shared_mem::MemMappedFile::readDecimal(unsigned long *dst) {
-    char num[15];
+    char num[common_consts::UL_MAX_DIGIT_NUMBER];
     if (this->readLine(num) == NULL)
         return false;
     *dst = (unsigned long) atoll(num);
@@ -171,14 +171,14 @@ bool my_shared_mem::MemMappedFile::readDecimal(unsigned long *dst) {
 }
 
 bool my_shared_mem::MemMappedFile::writeDecimal(int num) {
-    char strnum[15];
-    _itoa_s(num, strnum, 10);
+    char strnum[common_consts::UI_MAX_DIGIT_NUMBER];
+    _itoa_s(num, strnum, common_consts::DECIMAL_NOTATION);
     return writeLine(strnum);
 }
 
 bool my_shared_mem::MemMappedFile::writeDecimal(unsigned long num) {
-    char strnum[15];
-    _ultoa_s(num, strnum, 10);
+    char strnum[common_consts::UI_MAX_DIGIT_NUMBER];
+    _ultoa_s(num, strnum, common_consts::DECIMAL_NOTATION);
     return writeLine(strnum);
 }
 

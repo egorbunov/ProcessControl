@@ -31,7 +31,7 @@ LPTHREAD_START_ROUTINE DllInjector::AllocWritePath(HANDLE hTargetProcHandle, cha
     *lpExecParam = (LPVOID *)lpDllAddr;
     loadLibAddr = GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "LoadLibraryA");
     if (loadLibAddr == NULL) {
-        if (_logger) _logger->error("Failed to find LoadLibrary in Kernel32! Quiting...");
+        if (_logger) _logger->error("Failed to find LoadLibrary in Kernel32!");
         return NULL;
     }
 
@@ -44,7 +44,7 @@ int DllInjector::injectDLL(HANDLE hTargetProcHandle, LPTHREAD_START_ROUTINE lpSt
 
     rThread = CreateRemoteThread(hTargetProcHandle, NULL, 0, lpStartExecAddr, lpExecParam, 0, NULL);
     if (rThread == NULL) {
-        if (_logger) _logger->error("CreateRemoteThread Failed! [%d] Exiting....", GetLastError());
+        if (_logger) _logger->error("CreateRemoteThread Failed! [%d]", GetLastError());
         return -1;
     }
 
@@ -59,7 +59,7 @@ HANDLE DllInjector::attachToProcess(DWORD procID)
         return OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, procID);
     }
     else {
-        if (_logger) _logger->error("get version ex Failed! [%d] Exiting....", GetLastError());
+        if (_logger) _logger->error("get version ex Failed! [%d]", GetLastError());
     }
    /* if (osver.dwMajorVersion == 5) {
         return OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, 0, procID);

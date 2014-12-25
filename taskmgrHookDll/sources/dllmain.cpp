@@ -2,10 +2,10 @@
 
 // ------------------ INCLUDES ------------------------
 #include "../headers/definitions.h"
-
 #include "MinHook.h"
 #include "../../commonUtils/headers/Logger.h"
 #include "../../commonUtils/headers/memmapfile.h"
+#include "../../commonUtils/headers/constants.h"
 
 
 // ------------------ LIBRARIES -----------------------
@@ -16,16 +16,8 @@
 #pragma comment(lib, "libMinHook.x86.lib")
 #endif
 
-
-
-#define MAX_BUFFER_SIZE 1024 //1k
-#define INIT_URL_NUM 10
-
 // ----------------------------------- GLOBALS -----------------------------------------------
-char g_logfilename[125] = "F:\\gitmain\\ProcessControlProj\\ProcessControl\\ProcessControl\\logging\\dll_log";
-Logger *g_logger = NULL;
 FARPROC g_fpQuerySysInfo;
-
 DWORD g_processContollPID;
 DWORD g_taskmgrHookerPID;
 
@@ -84,74 +76,89 @@ __declspec(dllexport) NTSTATUS WINAPI MyNtQuerySystemInformation(_In_       SYST
 }
 
 
-static void readPIDSFromSharedFile() {
-    g_logger->info("Trying to read from shared mem");
-    const char SHARED_FILE_WITH_PIDS_NAME[] = "Global\\TaskmgrHookerPIDSFile";
-    const size_t MAX_DIGIT_NUM = 15;
+static void readPIDSFromSharedFile(Logger &logger) {
+    logger.info("Trying to read from shared mem");
+
     my_shared_mem::MemMappedFile file;
-    if (!file.openExisting(SHARED_FILE_WITH_PIDS_NAME, (MAX_DIGIT_NUM + 1) * 2, FILE_MAP_READ)) {
-        g_logger->error("Cannot open shared file! err code: %i", GetLastError());
+
+    if (!file.openExisting(taskmgt_hook_consts::SHARED_FILE_WITH_PIDS, 
+        (common_consts::UL_MAX_DIGIT_NUMBER + 1) * 2, 
+        FILE_MAP_READ)) {
+        logger.error("Cannot open shared file with pids! err code: %i", GetLastError());
     }
+
     file.readDecimal(&g_processContollPID);
-    g_logger->info("ProcessControll.exe pid read: %lu", g_processContollPID);
     file.readDecimal(&g_taskmgrHookerPID);
-    g_logger->info("tasmgrHooker pid read: %lu", g_taskmgrHookerPID);
+
+    logger.info("ProcessControll.exe pid = %lu ; tasmgrHooker pid = %lu",
+                   g_processContollPID, g_taskmgrHookerPID);
+}
+
+int getLoggingFilename(char *buffer, int bufSize) {
+    my_shared_mem::MemMappedFile file;
+    if (!file.openExisting(common_consts::SHARED_FILE_WITH_LOG_PATH,
+        common_consts::MAX_PATH_LENGTH, FILE_MAP_READ)) {
+
+        return 1;
+    }
+
+    if (buffer == NULL || !file.readLine(buffer))
+        return 1;
+
+    strcat_s(buffer, bufSize, taskmgt_hook_consts::LOG_FILE_SUFFIX);
+
+    DWORD pid = GetCurrentProcessId();
+    char strPid[common_consts::UL_MAX_DIGIT_NUMBER];
+    _ultoa_s(pid, strPid, common_consts::DECIMAL_NOTATION);
+    strcat_s(buffer, bufSize, strPid);
+    strcat_s(buffer, bufSize, ".txt");
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 {
-    //MessageBox(NULL, "TEXT", "TEXT", MB_OK);
     if (dwReason == DLL_PROCESS_ATTACH) {
-        DWORD pid = GetCurrentProcessId(); // hope process id will fit in integer
-        char strpid[12];
-        _ultoa_s(pid, strpid, 10);
-        strcat_s(g_logfilename, strpid);
-        strcat_s(g_logfilename, "taskmgr.txt");
-
-        g_logger = new Logger(g_logfilename, true);
-
-        g_logger->info("Reading shared file");
-        readPIDSFromSharedFile();
+        char logFilename[common_consts::MAX_PATH_LENGTH];
+        getLoggingFilename(logFilename, common_consts::MAX_PATH_LENGTH);
+        Logger logger(logFilename, true, true, common_consts::IS_NO_LOGGING);
+        readPIDSFromSharedFile(logger);
 
         g_fpQuerySysInfo = GetProcAddress(GetModuleHandle("ntdll.dll"), "NtQuerySystemInformation");
 
-        g_logger->info("Dll process attach.");
-        g_logger->info("initializing hook");
+        logger.info("Dll process attach. Initializing hook ...");
+
         // Creating a HOOK
         if (MH_Initialize() != MH_OK) {
-            g_logger->error("Cannot initialize minhook!");
+            logger.error("Cannot initialize minhook!");
             return 1;
         }
         if (MH_CreateHook(g_fpQuerySysInfo,
             &MyNtQuerySystemInformation,
             reinterpret_cast<void**>(&realNtQuerySystemInfo)) != MH_OK) {
-
-            g_logger->error("Cannot create hook!");
+            logger.error("Cannot create hook!");
             return 1;
         }
         if (MH_EnableHook(g_fpQuerySysInfo) != MH_OK) {
-            g_logger->error("Cannot enable hook!");
+            logger.error("Cannot enable hook!");
             return 1;
         }
 
     }
-    else if (dwReason == DLL_THREAD_ATTACH) {
-        g_logger->info("Dll thread attach.");
-    }
     else if (dwReason == DLL_PROCESS_DETACH) {
-        g_logger->info("Dll detach.");
+        char logFilename[common_consts::MAX_PATH_LENGTH];
+        getLoggingFilename(logFilename, common_consts::MAX_PATH_LENGTH);
+        Logger logger(logFilename, false, true, common_consts::IS_NO_LOGGING);
+
+        logger.info("Dll detach.");
 
         if (MH_DisableHook(g_fpQuerySysInfo) != MH_OK) {
-            g_logger->error("Cannot disable hook!");
+            logger.error("Cannot disable hook!");
             return 1;
         }
 
         if (MH_Uninitialize() != MH_OK) {
-            g_logger->error("Cannot uninit minhook!");
+            logger.error("Cannot uninit minhook!");
             return 1;
         }
-
-        //delete g_logger;
     }
     return TRUE;
 }

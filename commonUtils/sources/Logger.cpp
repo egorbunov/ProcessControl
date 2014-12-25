@@ -11,7 +11,7 @@ Logger::Logger(const char *filename, bool isNewFile, bool addPidPrefix, bool isM
         if (isNewFile)
             err = fopen_s(&pfile_, filename, "wt");
         else
-            err = fopen_s(&pfile_, filename, "wt+");
+            err = fopen_s(&pfile_, filename, "a+");
         if (err != 0) {
             throw "Cannot open file";
         }
@@ -24,8 +24,7 @@ void Logger::_addPrefixAndPrint(const char* prefix, const char* format, va_list 
         throw "Cannot log to file (cannot open log file)";
     }
 
-    const int addLen = 25; // additional length for prefix
-    const int ulongDigitNum = 15; // just enough
+    const int addLen = Logger::MAX_PREFIX_LEN + common_consts::UL_MAX_DIGIT_NUMBER;
     int len = (int)strlen(format) + addLen;
 
     // creating prefix
@@ -34,8 +33,8 @@ void Logger::_addPrefixAndPrint(const char* prefix, const char* format, va_list 
     char wholePrefix[addLen] = "";
     if (addPidPrefix_) {
         strcat_s(wholePrefix, "[");
-        char strpid[ulongDigitNum];
-        _ultoa_s(GetCurrentProcessId(), strpid, 10);
+        char strpid[common_consts::UL_MAX_DIGIT_NUMBER];
+        _ultoa_s(GetCurrentProcessId(), strpid, common_consts::DECIMAL_NOTATION);
         strcat_s(wholePrefix, strpid);
         strcat_s(wholePrefix, "] ");
     }

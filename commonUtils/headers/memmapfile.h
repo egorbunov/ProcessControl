@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+#include "constants.h"
 
 namespace my_shared_mem {
     class MemMappedFile {
