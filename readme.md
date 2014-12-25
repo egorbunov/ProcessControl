@@ -10,10 +10,10 @@ Simple application for controlling your computer activity :)
 ### Technologies
 * [min-hook][mh] library for creating simple function hooks
 * [dllinjector][di] for injecting dll's into processes
-* qt 5.2.1 msvc 2010
+* qt 5.4.0 msvc 2013
 
 ### ...
-App build in MSVS 2012 with help of QT-plugin for MSVS.
+App build in MSVS 2013 with help of QT-plugin for MSVS.
 
 [mh]: http://www.codeproject.com/Articles/44326/MinHook-The-Minimalistic-x-x-API-Hooking-Libra
 [di]: https://github.com/OpenSecurityResearch/dllinjector
