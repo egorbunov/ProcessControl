@@ -185,3 +185,6 @@ FakesAssemblies/
 # Some stuff
 indlls/*.lib
 indlls/*.exp
+
+*.wixpdb
+*.cab
