@@ -14,7 +14,13 @@ namespace common_consts {
     const char TASKMGR_HOOKER_LOG_FILENAME[] = "..\\logging\\taskmgr_hooker_log.txt";
     const bool IS_MAIN_LOGGER_MUTED = false;
     const bool IS_TASKMGR_HOOKER_LOGGER_MUTED = false;
-    const bool IS_DLL_LOGGERS_MUTED = true;
+
+    /*
+        for release it must be true for now, because of (as I suppose) if app installed to C:\Program Files and etc (which
+        require special rights to create files and etc), CreateRemoteThread must use more complicated SECURITY structure to 
+        successfuly create log file in instalation folder
+    */
+    const bool IS_DLL_LOGGERS_MUTED = true; 
 }
 
 namespace browser_hook_consts {

@@ -27,6 +27,11 @@ _logger(common_consts::MAIN_LOG_FILENAME, true, true, common_consts::IS_MAIN_LOG
     _is64bitWindows = (bool)IsWow64Process(GetCurrentProcess(), &_is64bitWindows);
 
     _controlledBrowsers.insert(std::begin(CONTROLLED_BROWSERS), std::end(CONTROLLED_BROWSERS));
+
+    // for testing, log working dir:
+    char dir[common_consts::MAX_PATH_LENGTH];
+    GetCurrentDirectoryA(common_consts::MAX_PATH_LENGTH, dir);
+    _logger.info("Working directory: %s", dir);
 }
 
 ProcController::~ProcController()

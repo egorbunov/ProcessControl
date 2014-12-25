@@ -134,6 +134,7 @@ int getLoggingFilename(char *buffer, int bufSize) {
     _ultoa_s(pid, strPid, common_consts::DECIMAL_NOTATION);
     strcat_s(buffer, bufSize, strPid);
     strcat_s(buffer, bufSize, ".txt");
+    return 0;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)

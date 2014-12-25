@@ -90,6 +90,11 @@ int CALLBACK WinMain(
 {
     Logger logger(common_consts::TASKMGR_HOOKER_LOG_FILENAME, true, true, common_consts::IS_TASKMGR_HOOKER_LOGGER_MUTED);
 
+    // for testing, log working directory
+    char dir[common_consts::MAX_PATH_LENGTH];
+    GetCurrentDirectoryA(common_consts::MAX_PATH_LENGTH, dir);
+    logger.info("Working directory: %s", dir);
+
     DllInjector dllInjector;
     unsigned long sessionTime;
     DWORD procControllPID;

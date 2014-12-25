@@ -11,7 +11,9 @@
       <ComponentGroupRef Id="BinComponents" />
       <ComponentGroupRef Id="LoggingComponents" />
       <ComponentGroupRef Id="DataComponents" />
+      <ComponentGroupRef Id="HookComponents" />
       <ComponentRef Id="ProcessControllShortcutComponent"/>
+      <ComponentGroupRef Id="UninstallComponentGroup"/>
     </Feature>
     
     <!-- UI  -->
@@ -32,6 +34,7 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="ProcessControl">
           <Directory Id="BINFOLDER" Name = "bin"/>
+          <Directory Id="HOOKDLLFOLDER" Name = "indlls"/>
           <Directory Id="DATAFOLDER" Name = "data"/>
           <Directory Id="LOGGINGFOLDER" Name = "logging"/>
         </Directory>
@@ -58,7 +61,7 @@
       <Component Id="TaskmgrHooker64EXE" Guid="">
         <File Source="$(var.taskmgrHooker.TargetDir)\taskmgrHooker64.exe" Id='FILE_TaskmgrHooker64EXE' KeyPath="yes" Checksum="yes"/>
       </Component>
-      <!-- DLL's -->
+      <!-- Dependencies DLL's -->
       <Component Id="Qt5CoreDLL" Guid="{0263D992-827B-4BF6-AFB6-A9D5A37A27EF}">
         <File Source="$(var.QTBIN)\Qt5Core.dll" KeyPath="yes"/>
       </Component>
@@ -79,9 +82,21 @@
       </Component>
     </ComponentGroup>
 
+    <ComponentGroup Id="HookComponents" Directory="HOOKDLLFOLDER">
+      <Component Id="COMP_chromeHookDll" Guid="{5F00A19E-7A6C-48A8-A3E0-DD230352B990}" KeyPath="yes">
+        <File Source="$(var.chromeHookDll.TargetPath)"/>
+      </Component>
+      <Component Id="COMP_taskmgrHook86Dll" Guid="{711CBF8F-C337-4011-BCC8-0C7F2E3002FD}">
+        <File Source="$(var.taskmgrHookDll.TargetDir)\taskmgrHookDll86.dll" KeyPath="yes"/>
+      </Component>
+      <Component Id="COMP_taskmgrHook64Dll" Guid="{A3674816-6092-4497-A26C-C2F800CE3C21}">
+        <File Source="$(var.taskmgrHookDll.TargetDir)\taskmgrHookDll64.dll" KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
+
     <!-- empty folder for logging -->
     <ComponentGroup Id="LoggingComponents" Directory="LOGGINGFOLDER">
-      <Component Id="loggingComp" Guid="{5F00A19E-7A6C-48A8-A3E0-DD230352B990}" SharedDllRefCount="no" KeyPath="yes" NeverOverwrite="no" Permanent="no" Transitive="no" Win64="no" Location="either">
+      <Component Id="loggingComp" Guid="{2633D04D-22FF-4AF7-88C9-64BED588E1FC}" SharedDllRefCount="no" KeyPath="yes" NeverOverwrite="no" Permanent="no" Transitive="no" Win64="no" Location="either">
         <CreateFolder/>
         <RemoveFolder Id="RemoveLoggingDir" On="uninstall" />
       </Component>
@@ -91,7 +106,6 @@
     <ComponentGroup Id="DataComponents" Directory="DATAFOLDER">
       <Component Id="dataComp" Guid="{35F3E62A-3C25-4024-BB35-6918D7880A11}" SharedDllRefCount="no" KeyPath="yes" NeverOverwrite="no" Permanent="no" Transitive="no" Win64="no" Location="either">
         <CreateFolder/>
-        <RemoveFolder Id="RemoveDataDir" On="uninstall" />
       </Component>
     </ComponentGroup>
   </Fragment>
@@ -127,10 +141,26 @@
                        Value="1"
                        KeyPath="yes" />
 
-        <RemoveFolder Id="RemoveMyShortcutsDir" On="uninstall" />
+        <RemoveFolder Id="RemoveMyShortcutsDir" On="uninstall" Directory="MyShortcutsDir"/>
       </Component>
     </DirectoryRef>
   </Fragment>
-  
+
+  <Fragment>
+    <ComponentGroup Id="UninstallComponentGroup" Directory="INSTALLFOLDER">
+      <Component Id="UninstallComponent" Guid="{4ED29002-AB04-4242-8283-C7A32162E9C1}">
+        <RemoveFolder Id="RemoveBaseFolder" On="uninstall" Directory="INSTALLFOLDER"/>
+        <RemoveFolder Id="RemoveBinaryDir" On="uninstall" Directory="BINFOLDER"/>
+        <RemoveFile Id="RemoveFilesInBinDir" Name="*" On="uninstall" Directory="BINFOLDER"/>
+        <RemoveFolder Id="RemoveIndllsDir" On="uninstall" Directory="HOOKDLLFOLDER"/>
+        <RemoveFile Id="RemoveFilesInIndllsDir" Name="*" On="uninstall" Directory="HOOKDLLFOLDER"/>
+        <RemoveFolder Id="RemoveDataDir" On="uninstall" Directory="DATAFOLDER"/>
+        <RemoveFile Id="RemoveFileInDataDir" Name="*" On="uninstall" Directory="DATAFOLDER"/>
+        <RemoveFolder Id="RemoveLoggingFolder" On="uninstall" Directory="LOGGINGFOLDER"/>
+        <RemoveFile Id="RemoveFilesInLoggingFolder" Name="*" On="uninstall" Directory="LOGGINGFOLDER"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
 
 </Wix>

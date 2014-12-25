@@ -23,6 +23,10 @@ LPTHREAD_START_ROUTINE DllInjector::AllocWritePath(HANDLE hTargetProcHandle, cha
     LPVOID loadLibAddr = NULL;
 
     lpDllAddr = VirtualAllocEx(hTargetProcHandle, NULL, strlen(dllPath), MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    if (lpDllAddr == NULL) {
+        if (_logger) _logger->error("VirtualAllocEx failed! [%u]", GetLastError());
+        return NULL;
+    }
     if (WriteProcessMemory(hTargetProcHandle, lpDllAddr, dllPath, strlen(dllPath), NULL) == 0) {
         if (_logger) _logger->error("WriteProcessMemory Failed[%u]", GetLastError());
         return NULL;
@@ -47,7 +51,7 @@ int DllInjector::injectDLL(HANDLE hTargetProcHandle, LPTHREAD_START_ROUTINE lpSt
         if (_logger) _logger->error("CreateRemoteThread Failed! [%d]", GetLastError());
         return -1;
     }
-
+    if (_logger) _logger->info("Remote thread created!");
     return 0;
 }
 
@@ -59,7 +63,7 @@ HANDLE DllInjector::attachToProcess(DWORD procID)
         return OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, FALSE, procID);
     }
     else {
-        if (_logger) _logger->error("get version ex Failed! [%d]", GetLastError());
+        if (_logger) _logger->error("get version ex Failed (probably bad win version!)! [%d]", GetLastError());
     }
    /* if (osver.dwMajorVersion == 5) {
         return OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_CREATE_THREAD, 0, procID);
@@ -96,7 +100,10 @@ int DllInjector::inject(unsigned long processId, std::string dllName)
     char* lpcDll = NULL;
     char tcDllPath[_bufferSize] = "";
 
-    GetFullPathNameA(dllName.c_str(), _bufferSize, tcDllPath, NULL);
+    if (GetFullPathNameA(dllName.c_str(), _bufferSize, tcDllPath, NULL) == 0) {
+        if (_logger) _logger->error("Cannot get full dll path!");
+        return -1;
+    };
     // Attach to process with OpenProcess()
     hTargetProcHandle = attachToProcess(processId);
     if (hTargetProcHandle == NULL) {
@@ -113,6 +120,7 @@ int DllInjector::inject(unsigned long processId, std::string dllName)
     }
 
     // Inject the DLL into process via create remote thread method
+    if (_logger) _logger->info("INJECTING!");
     injectDLL(hTargetProcHandle, lpStartExecAddr, lpExecParam);
     CloseHandle(hTargetProcHandle);
 
