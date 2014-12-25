@@ -21,3 +21,5 @@ App build in MSVS 2013 with help of QT-plugin for MSVS.
 
 [mh]: http://www.codeproject.com/Articles/44326/MinHook-The-Minimalistic-x-x-API-Hooking-Libra
 [di]: https://github.com/OpenSecurityResearch/dllinjector
+
+<div style="text-align:center"><img src ="https://raw.githubusercontent.com/egorbunov/ProcessControl/master/ProcessControl/Resources/mainTray.ico" /></div>
