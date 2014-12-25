@@ -1,6 +1,7 @@
 #ifndef CONSTANTS_H_INCLUDED__
 #define CONSTANTS_H_INCLUDED__
 
+
 namespace common_consts {
 	const int DECIMAL_NOTATION = 10;
 	const int UL_MAX_DIGIT_NUMBER = 15;

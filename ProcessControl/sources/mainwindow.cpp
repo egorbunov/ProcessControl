@@ -18,8 +18,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     modeModel = new QStandardItemModel();
     ui.modeListView->setModel(modeModel);
 
-    
-
     fillModeModel();
 
     connect(ui.actionNewMode, SIGNAL(triggered()), this, SLOT(openModeCreationDialog()));
