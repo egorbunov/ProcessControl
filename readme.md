@@ -1,7 +1,7 @@
 # Process control
 Simple application for controlling your computer activity :)
 
-**Capabilities** (23 december, 2014):
+**Capabilities** (25 december, 2014):
 * You can create "task" with progress and list of programs and sites, which can't be opened during that "task".
 * If program is restricted, it can't be opened (it's automatically closes)
 * If site is restricted, it sometimes can't be opened in Chrome browser :D
@@ -13,6 +13,10 @@ Simple application for controlling your computer activity :)
 * qt 5.4.0 msvc 2013
 
 ### ...
+Finally that will be 32-bit application for windows 7 (32-64 bit).
+
+The app runs supporting process for hiding itself in taskmgr.exe, because of if OS is 64 bit, it's complicated to inject 64-bit dll from 32-bit process...
+
 App build in MSVS 2013 with help of QT-plugin for MSVS.
 
 [mh]: http://www.codeproject.com/Articles/44326/MinHook-The-Minimalistic-x-x-API-Hooking-Libra
