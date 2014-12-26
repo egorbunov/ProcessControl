@@ -5,6 +5,9 @@
       <Component Id="cmp8DAE6BAF42A69936B5B054A0C73AC17D" Guid="{0DED0768-EBA7-4071-A912-CE2492353693}">
         <File Id="fil439F85F041E12E9FE9CEA370C6C6D11E" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\index.html" />
       </Component>
+      <Component Id="Com_RUINDEX" Guid="{CED3203D-8EB3-4CC3-89FE-A56A05471ABC}">
+        <File Id="File_RUINDEX" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\index_ru.html" />
+      </Component>
     </ComponentGroup>
     
     <ComponentGroup Id="DocumentationComponentsCss" Directory="DOCS_CSS">
@@ -46,6 +49,15 @@
       </Component>
     </ComponentGroup>
 
+    <ComponentGroup Id="DocumentationComponentsRU" Directory="DOCS_RU">
+      <Component Id="COMP_DOCS_RU_OVERVIEW" Guid="{FE03D647-9590-4DD6-BF2C-DB0B53A669F9}">
+        <File Id="File_RUOverviewID" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\ru\overview.html" />
+      </Component>
+      <Component Id="COMP_DOCS_RU_USERGUIDE" Guid="{9F07E8AD-2A63-4123-8382-85B7B36F3181}">
+        <File Id="File_RUUserGuideID" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\ru\user_guide.html" />
+      </Component>
+    </ComponentGroup>
+
     <ComponentGroup Id="DocumentationComponentsImages" Directory="DOCS_IMG">
       <Component Id="cmp413C99100BA74D9E6CCA206622C9F419" Guid="{BCC44803-A4F8-4678-9E9E-B78C78398626}">
         <File Id="filF6257A0CEB5CC30B19DE538CFCEBE1C5" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\tray.png" />
@@ -61,6 +73,12 @@
       </Component>
       <Component Id="cmpA7AF677F1A51F53A4C9C9DA97E03EF50" Guid="{E5763EA3-3E76-44CF-B129-F1C5B9EB3420}">
         <File Id="fil695D7F5E253E4A7F8B734936C91C2CD1" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\sessionEnd.png" />
+      </Component>
+      <Component Id="COMP_RUS_FLAG" Guid="{E35114E0-A6D0-4231-9540-4238F6C1A0A3}">
+        <File Id="File_RusFlagId" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\russia.png" />
+      </Component>
+      <Component Id="COMP_USA_FLAG" Guid="{A225DB12-4CB1-4C1A-AAB9-805BA89B02DC}">
+        <File Id="File_USAFlagId" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\usa.png" />
       </Component>
     </ComponentGroup>
   </Fragment>

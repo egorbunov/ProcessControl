@@ -20,6 +20,7 @@
       <ComponentGroupRef Id="DocumentationComponentsCss" />
       <ComponentGroupRef Id="DocumentationComponentsJS" />
       <ComponentGroupRef Id="DocumentationComponentsEN" />
+      <ComponentGroupRef Id="DocumentationComponentsRU" />
       <ComponentGroupRef Id="DocumentationComponentsImages" />
     </Feature>
     
@@ -48,6 +49,7 @@
             <Directory Id="INNERDOCSFOLDER" Name="docs">
               <Directory Id="DOCS_CSS" Name="css"/>
               <Directory Id="DOCS_EN" Name="en"/>
+              <Directory Id="DOCS_RU" Name="ru"/>
               <Directory Id="DOCS_IMG" Name="images"/>
               <Directory Id="DOCS_JS" Name="js"/>
             </Directory>
