@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Process Control Documentation</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="../css/mystyles.css" rel="stylesheet">
+    <link href="../css/navbarstyle.css" rel="stylesheet">
+    <link href="../css/header_styles.css" rel="stylesheet">
+    <link href="../css/common.css" rel="stylesheet">
+  </head>
+
+  <body>
+      <nav class="navbar navbar-default navbar-static-top shadow">
+  	    <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" aria-controls="mainNavbar" aria-expanded="false" data-toggle="collapse" data-target="#mainNavbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>      
+            <span class="icon-bar"></span>             
+            </button>
+            <img src="../images/pcicon.png" class="navbar-brand">
+            <a class="navbar-brand" href="../../index.html">Process Control</a>
+          </div>
+  	      <div class="navbar-collapse collapse" id="mainNavbar">
+  	        <ul class="nav navbar-nav">
+  	          <li class="active"><a href="overview.html">Обзор</a></li>
+  	          <li><a href="user_guide.html">Руководство пользователя</a></li>
+  	        </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="../ru/overview.html"><img src="../images/russia.png" width="20px"/></a></li>
+              <li><a href="../en/overview.html"><img src="../images/usa.png" width="20px"/></a></li>
+          </ul>
+  	      </div>
+  	    </div>
+      </nav>
+
+  <article>
+    <div class="container">
+      <div class="my_table_of_contents">
+    </div>
+
+  	<div class="container">
+      <hr/>
+      <div class="row">
+      	<h1 class="title" id="process_control_overview">Обзор программы Process Control</h1>
+        <h2 id="about">Общая информация</h1>
+    		<p>
+    		Process Control - это приложение для контролирования действий пользователя в за компьютером. Пользователь может выбрать набор программ и интернет-адресов, которые во время работы программы буду "запрещены". Так же программа позволяет создавать разные режимы работы, каждый из которых содержит свой набор запрещённых сайтов и программ, а так же свой счётчик прогресса :). Пользователь может включать тот или иной режим на любой промежуток времени, тем самым улучшая свою производительность труда или чего-нибудь ещё!
+    		</p>
+        <h2 id="technologies">Используемые технологии</h2>
+        <p>
+        Приложение построено с использованием некоторых техник инъекции динамических библиотек (Dll) в сторонние процессы и перехвата вызовов функций. Ниже приведены готовые решения, которые были как-то использованы в программе:
+        </p>
+        <ul>
+          <li class="main-font-size"><a href="http://www.codeproject.com/Articles/44326/MinHook-The-Minimalistic-x-x-API-Hooking-Libra">Minhook</a></li>
+          <li class="main-font-size"><a href="https://github.com/OpenSecurityResearch/dllinjector">Dll Injector</a></li>
+        </ul>
+        <p>
+        Графический интерфейс сделан с помощью <a href="http://www.qt.io/download-open-source/">Qt 5.4.0 Community edition</a>.
+        </p>
+        <h2 id="licence">Licence</h1>
+        <p>
+        Process Control - это свободное программное обеспечение. Распространяется на правах лицензии <a href="http://www.gnu.org/licenses/gpl-3.0.ru.html">GPL 3.0</a>. Используйте его как хотите! Исходный код можно взять из <a href="https://github.com/egorbunov/ProcessControl">репозитория на github.</a>.
+        </p>
+      </div><!-- .row -->     
+    </div> <!-- /container -->
+
+    </article>
+
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/toc.js"></script>
+  </body>
+</html>
