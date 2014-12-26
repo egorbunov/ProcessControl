@@ -26,4 +26,4 @@ To install application you can use [msi-installer][installer] in installer folde
 [di]: https://github.com/OpenSecurityResearch/dllinjector
 [installer]: https://github.com/egorbunov/ProcessControl/raw/master/installer/ProcessControlInstall86.msi
 
-<div style="text-align:center"><img src ="https://raw.githubusercontent.com/egorbunov/ProcessControl/master/ProcessControl/Resources/mainTray.ico" /></div>
+<div style="text-align:center"><img src ="https://raw.githubusercontent.com/egorbunov/ProcessControl/master/ProcessControl/ProcessControl/Resources/mainTray.ico" /></div>
