@@ -1,45 +1,5 @@
-body {
-  padding-bottom: 20px;
-  min-height: 2000px
-}
-
-.navbar-static-top {
-  margin-bottom: 19px;
-}
-
-.navbar {
-  margin-bottom: 20px;
-}
-
-.shadow {
-    box-shadow: 0 0px 9px rgba(0,0,0,0.5);
-}
-
-body #content {
-  line-height: 1.6;
-}
-
 .title {
   font-size: 32px;
-}
-
-
-h1 {
-  font-size: 28px;
-  margin-top: 25px;
-  border-bottom: 1px solid #000000;
-}
-
-h2 {
-  font-size: 24px;
-  margin-top: 15px;
-  border-bottom: 1px solid #000000;
-}
-
-h3 {
-  font-size: 21px;
-  margin-top: 10px;
-  border-bottom: 1px solid #000000;
 }
 
 p {
@@ -52,10 +12,6 @@ p {
 
 pre {
   font-family: "Menlo", "Lucida Console", monospace;
-}
-
-.container {
-  max-width: 914px;
 }
 
 .table-of-contents {
