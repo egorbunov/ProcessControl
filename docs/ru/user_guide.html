@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Process Control Documentation</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="../css/mystyles.css" rel="stylesheet">
+    <link href="../css/navbarstyle.css" rel="stylesheet">
+    <link href="../css/header_styles.css" rel="stylesheet">
+    <link href="../css/common.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top shadow">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" aria-controls="mainNavbar" aria-expanded="false" data-toggle="collapse" data-target="#mainNavbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>      
+          <span class="icon-bar"></span>             
+          </button>
+          <img src="../images/pcicon.png" class="navbar-brand">
+          <a class="navbar-brand" href="../../index.html">Process Control</a>
+        </div>
+        <div class="navbar-collapse collapse" id="mainNavbar">
+          <ul class="nav navbar-nav">
+              <li><a href="overview.html">Обзор</a></li>
+              <li class="active"><a href="user_guide.html">Руководство пользователя</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+              <li><a href="../ru/user_guide.html"><img src="../images/russia.png" width="20px"/></a></li>
+              <li><a href="../en/user_guide.html"><img src="../images/usa.png" width="20px"/></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <article>
+    <div class="container">
+      <div class="my_table_of_contents">
+    </div>
+
+    <div class="container">
+      <hr/>
+      <div class="row">
+        <h1 id="installation">Установка и удаление</h1>
+        <h2 id="sys_req">Системные требования</h2>
+        <div>
+          <ul>
+            <li class="main-font-size">Windows 7 x64 or x86*</li>
+            <li class="main-font-size">Ram: 512 MB</li>
+            <li class="main-font-size">50 MB свободного места на диске</li>
+          </ul>
+        </div>
+        <p>
+        Приложение Process Control app пока что поддерживает только 32-битные браузеры.
+        </p>
+        <div class="font-size:10px">
+        * На самом деле, приложение тестировалось только на Windows 7 x64, так что оно, возможно, заработает и на более старых версиях Windows.
+        </div>
+        <h2 id="downl">Загрузка</h2>
+        <p>
+        Приложение поставляется как .msi-инсталлятор. Последнюю версию можно скачать <a href="https://github.com/egorbunov/ProcessControl/raw/master/installer/ProcessControlInstall86.msi">тут</a>.
+        </p>
+        <h2 id="instl">Установка</h2>
+        <p>
+        Для установки просто запустите .mis-инсталлятор. Для установки вам потребуются права администратора (как и для запуска самого приложения).
+        Последняя версия приложения (v1.0.0) хранит необходимые для работы данных только в папке, куда оно было установлено, так что вы можете свободно перемещать папку с программой куда-либо. Приложение одной и той же версии может быть установлено лишь в одном экземпляре на вашем компьютере.
+        </p>
+        <h2 id="uninst">Удаление</h2>
+        <p>
+        Удалить программу можно как и через панель управления, так и через ярлык, который после установки должен был появиться в меню "Все программы" в папке Process Control.
+        </p>
+      </div><!-- .row -->      
+      </hr>
+      <div class="row">
+        <h1 id="run">Первый запуск</h1>
+        <p>
+        При первом запуске программы вы увидите следующее окно:
+        </p>
+        <figure>
+        <center>
+        <img src="../images/mainWindow.png" alt="Main window" align="middle" width="450">
+        <figcaption>Изображение 1</figcaption>
+        </center>
+        </figure>
+        <ol>
+          <li class="main-font-size">Кнопка для создания режима</li>
+          <li class="main-font-size">Список всех, ранее созданных, режимов</li>
+          <li class="main-font-size">Кнопка для выбора режима (для старта основной задачи приложения)</li>
+          <li class="main-font-size">Редактировать выбранный режим</li>
+          <li class="main-font-size">Удалить выбранный режим</li>
+          <li class="main-font-size">Блок с настроками продолжительности работы в выбранном режиме</li>
+        </ul>
+      </div><!-- .row -->    
+      </hr>
+      <div class="row">
+        <h1 id="mode_creation">Создание режимов</h1>
+        <p>
+        Для создания режима сделайте следующее:
+        </p>
+        <ul>
+          <li class="main-font-size">Нажмите на кномпку создания режима (см. Изображение 1). Вы увидите диалог:</li>
+          <figure>
+          <center>
+          <img src="../images/modeCr.png" alt="Mode creation dialog" align="middle" width="400">
+          <figcaption>Рисунок 2</figcaption>
+          </center>
+          </figure>
+          <li class="main-font-size">Заполните поля: добавьте программы и ссылки (необходимо добавить хотя бы одну ссылку или программу), которые будут запрещены во время работы в выбранном режиме, выберите уникальное имя для режима, а так же, если хотите добавьте описание и прогресс (прогресс можно использовать как меру успеха в каком-нибудь деле :) ).</li>
+        </ul>
+      </div><!-- .row -->      
+    </div>
+    </hr>
+      <div class="row">
+        <h1 id="mode_start">Запуск режима</h1>
+        <p>
+        Наконец, когда режим готов к запуску (т.е. кнопка Choose свободно нажимается), вы можете его запустить (нажать кнопку Choose, собственно). Но перед запуском вы должны назначить время - то, сколько выбранный режим будет активен. После запуска программа свернётся в фоновый режим и будет следить за тем, что вы делаете за компьютером. Наведя на иконку приложения в трее, можно увидеть, сколько времени остальось до конца работы программы в выбранном режиме.
+        </p>
+          <figure>
+          <center>
+          <img src="../images/tray.png" alt="Tray icon" align="middle" width="130">
+          <figcaption>Изображение 3</figcaption>
+          </center>
+          </figure>
+        <p>
+        По окончании работы программы вы увидите диалог, в котором можно изменить прогресс режима, закончившего работу (если у этого режима есть прогесс).
+        </p>
+        <p>
+        Во время работы программы в этом режиме вы не сможете найти процесс приложения в диспетчере задач (taskmgr.exe), но не печальтесь, если вас действительно невтерпёж закончить работу программы, то можно воспользоваться командной строкой (<a href="http://en.wikipedia.org/wiki/Kill_(command)#Microsoft_Windows">вот так</a>).
+        Но если вы собрались убить приложение, то необходимо так же завершить процесс <i>taskmgrHooker32.exe</i> or <i>taskmgrHooker64.exe</i> в зависимости от разрядности вашей системы (это вспомогательный процесс приложения).
+        </p>
+      </div><!-- .row -->      
+
+     </hr>
+    <div class="row">
+      <h1 id="fdbk">Контакты</h1>
+      <p>
+      Если у вас есть вопросы, пожаления и прочее, то напишите мне на почту: <a href="mailto:youremailaddress">egor-mailbox@narod.ru</a>.
+      Или свяжитесь со мной через <a href="https://github.com/egorbunov/ProcessControl">github</a>.
+      </p>
+    </div><!-- .row -->      
+
+    </div>
+
+    </article>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/toc.js"></script>
+  </body>
+</html>
