@@ -1,16 +1,6 @@
-3
 1
-That is simple, test mode!!!!
-"C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"|"F:/Program Files/Adobe/Photoshop CC/Adobe Photoshop CC (64 Bit)/Photoshop.exe"|
-yandex.ru|www.google.ru|
-19
-2
-Учёба
-"C:/Program Files/RStudio/bin/rstudio.exe"|"C:/Program Files (x86)/Adobe/Reader 11.0/Reader/AcroRd32.exe"|
-yandex.ru|vk.com|google.ru|www.google.ru|
-82
-Test mode
-Lorem ipsum
-"F:/Program Files/BioShock Infinite.v 1.1.25.5165 + 4 DLC/Binaries/Win32/BioShockInfinite.exe"|"F:/Program Files/StarCraft/StarCraft.exe"|"C:/Users/Egor/AppData/Roaming/Telegram Win (Unofficial)/Telegram.exe"|
-vk.com|twitter.com|instagram.com|youtube.com|
-24
+Work
+=)
+
+vk.com|
+-1

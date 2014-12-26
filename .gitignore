@@ -185,6 +185,5 @@ FakesAssemblies/
 # Some stuff
 ProcessControl/indlls/*
 bin/
-ProcessControl/logging/
 
 *.wixpdb
