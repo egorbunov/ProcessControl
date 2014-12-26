@@ -1,3 +1,0 @@
-[7284] INFO: Working directory: F:\gitmain\ProcessControlProj\ProcessControl\ProcessControl
-[7284] INFO: Creating shared file to write pids
-[7284] INFO: Session duration = 60000 ; ProcessControll.exe pid = 2336 ; Controll Stab = 500

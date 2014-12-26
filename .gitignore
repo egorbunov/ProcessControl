@@ -183,7 +183,8 @@ UpgradeLog*.htm
 FakesAssemblies/
 
 # Some stuff
-ProcessControl/indlls/*.lib
-ProcessControl/indlls/*.exp
+ProcessControl/indlls/*
+bin/
+ProcessControl/logging/
 
 *.wixpdb
