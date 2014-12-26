@@ -1,0 +1,86 @@
+body {
+  padding-bottom: 20px;
+  min-height: 2000px
+}
+
+.navbar-static-top {
+  margin-bottom: 19px;
+}
+
+.navbar {
+  margin-bottom: 20px;
+}
+
+.shadow {
+    box-shadow: 0 0px 9px rgba(0,0,0,0.5);
+}
+
+body #content {
+  line-height: 1.6;
+}
+
+.title {
+  font-size: 32px;
+}
+
+
+h1 {
+  font-size: 28px;
+  margin-top: 25px;
+  border-bottom: 1px solid #000000;
+}
+
+h2 {
+  font-size: 24px;
+  margin-top: 15px;
+  border-bottom: 1px solid #000000;
+}
+
+h3 {
+  font-size: 21px;
+  margin-top: 10px;
+  border-bottom: 1px solid #000000;
+}
+
+p {
+  font-size: 16px;
+}
+
+.main-font-size {
+	font-size: 16px;
+}
+
+pre {
+  font-family: "Menlo", "Lucida Console", monospace;
+}
+
+.container {
+  max-width: 914px;
+}
+
+.table-of-contents {
+  border-radius: 10px;
+  border: 1px solid #d1d1d1;
+  width: auto;
+  background: #f8f8f8;
+  font-size: 0.8em;
+  padding: 0.5em 1.5em;
+  margin: 0 0 1em 2em;
+}
+.table-of-contents ul {
+}
+.table-of-contents li {
+  font-size: 15px;
+}
+.table-of-contents a {
+  text-decoration: none;
+}
+
+.table-of-contents a:hover,
+.table-of-contents a:active {
+  text-decoration: underline;
+}
+
+h1:target {
+  animation: highlight 1s ease;
+}
