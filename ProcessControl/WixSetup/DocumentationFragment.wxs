@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment Id='FragmentDocumentation'>
+    <ComponentGroup Id="DocumentationComponents" Directory="DOCSFOLDER">
+      <Component Id="cmp8DAE6BAF42A69936B5B054A0C73AC17D" Guid="{0DED0768-EBA7-4071-A912-CE2492353693}">
+        <File Id="fil439F85F041E12E9FE9CEA370C6C6D11E" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\index.html" />
+      </Component>
+    </ComponentGroup>
+    
+    <ComponentGroup Id="DocumentationComponentsCss" Directory="DOCS_CSS">
+      <Component Id="cmp50953102CB0782042DE148D7CEBCF5B7" Guid="{C595C868-87C7-4C9F-B7E2-EA62D7E218B8}">
+        <File Id="filAF76EC41EACAE1861B199709ACBBE9A9" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\css\common.css" />
+      </Component>
+      <Component Id="cmp8FEC220D66C44D545EBD5AB3C65E79C4" Guid="{237E3349-1253-4357-98B8-079F49515518}">
+        <File Id="fil3E7EC1D4E8E5C083EFB99000BAA19A6B" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\css\navbarstyle.css" />
+      </Component>
+      <Component Id="cmpA5062E426F0443DAC2A2B468FEC19AAA" Guid="{9DD99C13-4EDB-4193-B15E-65DDE14C3D08}">
+        <File Id="fil383C05C0D89CDEEC28AF596816FC07E4" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\css\bootstrap.min.css" />
+      </Component>
+      <Component Id="cmpEF6FFF63CFAC82E66228592DC9B49EB2" Guid="{6A900BFA-37AF-45D3-ABCF-F9260C001AEC}">
+        <File Id="fil06554CA6EBC552A440B7492643D8EE93" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\css\mystyles.css" />
+      </Component>
+      <Component Id="cmpCAB4C0C5D9025BCE84136A06AB6F7DC0" Guid="{3B76EA8A-441F-47BB-8A82-3BFDEE6AC5A2}">
+        <File Id="fil86D9CAB6ACF8C9951EBA1ED5021B0112" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\css\header_styles.css" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DocumentationComponentsJS" Directory="DOCS_JS">
+      <Component Id="cmpEE5FB0B3FE1F3F607370464A859EE683" Guid="{5356C334-FD4A-476C-83C3-9F2D98F099E7}">
+        <File Id="fil195688329B877196FFA2813215A8F004" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\js\toc.js" />
+      </Component>
+      <Component Id="cmp874D2A33F3EFAADA3E642826229CE35C" Guid="{6A830523-406C-4288-919C-DE1616A2AE71}">
+        <File Id="filA2180649BD29156E317EFDD569AD77B7" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\js\bootstrap.min.js" />
+      </Component>
+      <Component Id="cmp2512E12C00EB52B8A18E534EB13BC204" Guid="{E6891CDC-CB74-4B88-960B-5F8F0EDC1FFC}">
+        <File Id="filCA28749AE3FECAE764842DA73E0B5D92" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\js\jquery.min.js" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DocumentationComponentsEN" Directory="DOCS_EN">
+      <Component Id="cmp22E8610EDEC9D78535AC13F3964EC5B9" Guid="{BB91C03A-3254-496C-A1C1-32527EF887B5}">
+        <File Id="fil1FB790BE8C12EFCD73F8E06B0147D9E3" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\en\overview.html" />
+      </Component>
+      <Component Id="cmpC96395D0F9BF2716C61EA5F12DA625D8" Guid="{CFF28F01-93A3-4711-A130-AB76939D1FEE}">
+        <File Id="filE4DCFBB23CB7C8C0A12C781F8D373F9F" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\en\user_guide.html" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DocumentationComponentsImages" Directory="DOCS_IMG">
+      <Component Id="cmp413C99100BA74D9E6CCA206622C9F419" Guid="{BCC44803-A4F8-4678-9E9E-B78C78398626}">
+        <File Id="filF6257A0CEB5CC30B19DE538CFCEBE1C5" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\tray.png" />
+      </Component>
+      <Component Id="cmp41E1EC030656B9FC4DB22B68CF49BC3B" Guid="{A208DD8B-D365-4796-AC1C-30868D4091DA}">
+        <File Id="filBC86E793AFCC04B19A5874A3C75E8C4D" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\pcicon.png" />
+      </Component>
+      <Component Id="cmp4B2EB0699B667F45A109A5FEE18758A2" Guid="{C764A2CC-B542-41A8-88C2-6431A8509EB2}">
+        <File Id="fil62491E7BB588D2CB1F4957DE2541C879" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\mainWindow.png" />
+      </Component>
+      <Component Id="cmp64A669B6E57B507DBA7780FBA1E34C07" Guid="{D280B1BC-EE9A-4A3D-AD27-22E09082D49F}">
+        <File Id="fil1AE376C6847AFAE19F3AE0C5BA4469DC" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\modeCr.png" />
+      </Component>
+      <Component Id="cmpA7AF677F1A51F53A4C9C9DA97E03EF50" Guid="{E5763EA3-3E76-44CF-B129-F1C5B9EB3420}">
+        <File Id="fil695D7F5E253E4A7F8B734936C91C2CD1" KeyPath="yes" Source="$(var.SolutionDir)\..\documentation\docs\images\sessionEnd.png" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

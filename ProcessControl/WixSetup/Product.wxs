@@ -15,6 +15,13 @@
       <ComponentRef Id="ProcessControllShortcutComponent"/>
       <ComponentGroupRef Id="UninstallComponentGroup"/>
     </Feature>
+    <Feature Id="DocumentationFeature" Title="Documentation" Level="1">
+      <ComponentGroupRef Id="DocumentationComponents" />
+      <ComponentGroupRef Id="DocumentationComponentsCss" />
+      <ComponentGroupRef Id="DocumentationComponentsJS" />
+      <ComponentGroupRef Id="DocumentationComponentsEN" />
+      <ComponentGroupRef Id="DocumentationComponentsImages" />
+    </Feature>
     
     <!-- UI  -->
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER"/>
@@ -28,7 +35,7 @@
   <?define QTBIN= "C:\Qt\Qt5.4.0(x86)\5.4\msvc2013\bin" ?>
 
   <!-- Fragments -->
-  <Fragment>
+  <Fragment Id="Fragment_DirectoryStructure">
     <!-- Project structure -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
@@ -37,6 +44,14 @@
           <Directory Id="HOOKDLLFOLDER" Name = "indlls"/>
           <Directory Id="DATAFOLDER" Name = "data"/>
           <Directory Id="LOGGINGFOLDER" Name = "logging"/>
+          <Directory Id="DOCSFOLDER" Name = "documentation">
+            <Directory Id="INNERDOCSFOLDER" Name="docs">
+              <Directory Id="DOCS_CSS" Name="css"/>
+              <Directory Id="DOCS_EN" Name="en"/>
+              <Directory Id="DOCS_IMG" Name="images"/>
+              <Directory Id="DOCS_JS" Name="js"/>
+            </Directory>
+          </Directory>
         </Directory>
       </Directory>
       <!-- dir to place shortcut (app menu) -->
@@ -46,8 +61,8 @@
     </Directory>
   </Fragment>
 
-  <!-- Fragment with all files to install -->
-  <Fragment>
+  <!-- Fragment with all important to install -->
+  <Fragment Id="Fragment_MainFiles">
     <!-- /bin folder -->
     <ComponentGroup Id="BinComponents" Directory="BINFOLDER">
       <!-- ProcessControl.exe - main executable -->
@@ -87,10 +102,10 @@
         <File Source="$(var.chromeHookDll.TargetPath)"/>
       </Component>
       <Component Id="COMP_taskmgrHook86Dll" Guid="{711CBF8F-C337-4011-BCC8-0C7F2E3002FD}">
-        <File Source="$(var.taskmgrHookDll.TargetDir)\taskmgrHookDll86.dll" KeyPath="yes"/>
+        <File Source="$(var.taskmgrHookDll.TargetDir)taskmgrHookDll86.dll" KeyPath="yes"/>
       </Component>
       <Component Id="COMP_taskmgrHook64Dll" Guid="{A3674816-6092-4497-A26C-C2F800CE3C21}">
-        <File Source="$(var.taskmgrHookDll.TargetDir)\taskmgrHookDll64.dll" KeyPath="yes"/>
+        <File Source="$(var.taskmgrHookDll.TargetDir)taskmgrHookDll64.dll" KeyPath="yes"/>
       </Component>
     </ComponentGroup>
 

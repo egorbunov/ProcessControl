@@ -81,9 +81,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\ProcessControl\indlls\</OutDir>
-    <IncludePath>..\minhook\include;$(IncludePath)</IncludePath>
-    <LibraryPath>..\minhook\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>..\indlls\</OutDir>
+    <IncludePath>..\..\minhook\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\minhook\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)86</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
