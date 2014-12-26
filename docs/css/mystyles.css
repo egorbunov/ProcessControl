@@ -1,0 +1,42 @@
+.title {
+  font-size: 32px;
+}
+
+p {
+  font-size: 16px;
+}
+
+.main-font-size {
+	font-size: 16px;
+}
+
+pre {
+  font-family: "Menlo", "Lucida Console", monospace;
+}
+
+.table-of-contents {
+  border-radius: 10px;
+  border: 1px solid #d1d1d1;
+  width: auto;
+  background: #f8f8f8;
+  font-size: 0.8em;
+  padding: 0.5em 1.5em;
+  margin: 0 0 1em 2em;
+}
+.table-of-contents ul {
+}
+.table-of-contents li {
+  font-size: 15px;
+}
+.table-of-contents a {
+  text-decoration: none;
+}
+
+.table-of-contents a:hover,
+.table-of-contents a:active {
+  text-decoration: underline;
+}
+
+h1:target {
+  animation: highlight 1s ease;
+}

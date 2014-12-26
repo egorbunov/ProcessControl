@@ -1,0 +1,11 @@
+.navbar-static-top {
+  margin-bottom: 19px;
+}
+
+.navbar {
+  margin-bottom: 20px;
+}
+
+.shadow {
+    box-shadow: 0 0px 9px rgba(0,0,0,0.5);
+}

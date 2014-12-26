@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Process Control Documentation</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="../css/mystyles.css" rel="stylesheet">
+    <link href="../css/navbarstyle.css" rel="stylesheet">
+    <link href="../css/header_styles.css" rel="stylesheet">
+    <link href="../css/common.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-default navbar-static-top shadow">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" aria-controls="mainNavbar" aria-expanded="false" data-toggle="collapse" data-target="#mainNavbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>      
+          <span class="icon-bar"></span>             
+          </button>
+          <img src="../images/pcicon.png" class="navbar-brand">
+          <a class="navbar-brand" href="../index.html">Process Control</a>
+        </div>
+        <div class="navbar-collapse collapse" id="mainNavbar">
+          <ul class="nav navbar-nav">
+            <li><a href="overview.html">Overview</a></li>
+            <li class="active"><a href="user_guide.html">User guide</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <article>
+    <div class="container">
+      <div class="my_table_of_contents">
+    </div>
+
+    <div class="container">
+      <hr/>
+      <div class="row">
+        <h1 id="installation">Installation and Uninstallation</h1>
+        <h2 id="sys_req">System requirements</h2>
+        <div>
+          <ul>
+            <li class="main-font-size">Windows 7 x64 or x86*</li>
+            <li class="main-font-size">Ram: 512 MB</li>
+            <li class="main-font-size">50 MB of free disk space</li>
+          </ul>
+        </div>
+        <p>
+        Process Control app supports only 32-bit browsers for today.
+        </p>
+        <div class="font-size:10px">
+        * Actually app was tested on Windows 7 x64 for now, maybe it will work on older versions too.
+        </div>
+        <h2 id="downl">Download</h2>
+        <p>
+        Application is packed into .msi installer and you can download last version of the application <a href="https://github.com/egorbunov/ProcessControl/raw/master/installer/ProcessControlInstall86.msi">here</a>.
+        </p>
+        <h2 id="instl">Intallation</h2>
+        <p>
+        To install program you need to simply run .msi-installer. Last version of application (v1.0.0) stores it's data only in installation folder, so you can freely move installation folder after install. You can have only one Process Control application of the same version installed on your pc.
+        </p>
+        <h2 id="uninst">Uninstalltion</h2>
+        <p>
+        After installation you will see, that Process Control folder appeared in windows application menu so you can click Uninstall shortcut from that folder to uninstall Process Control. Also, as always, you can use Control Panel to do it.
+        </p>
+      </div><!-- .row -->      
+      </hr>
+      <div class="row">
+        <h1 id="run">First run</h1>
+        <p>
+        Click shortcut or ProcessControl.exe file in bin folder under installation directory to run program. You will see main application dialog:
+        </p>
+        <figure>
+        <center>
+        <img src="../images/mainWindow.png" alt="Main window" align="middle" width="450">
+        <figcaption>Figure 1</figcaption>
+        </center>
+        </figure>
+        <ol>
+          <li class="main-font-size">New mode creation button</li>
+          <li class="main-font-size">List view of all existing modes</li>
+          <li class="main-font-size">Choose selected mode button</li>
+          <li class="main-font-size">Mode edit button</li>
+          <li class="main-font-size">Button for deleting selected mode</li>
+          <li class="main-font-size">Block with time period settings</li>
+        </ul>
+      </div><!-- .row -->    
+      </hr>
+      <div class="row">
+        <h1 id="mode_creation">Mode creation</h1>
+        <p>
+        To create mode do:
+        </p>
+        <ul>
+          <li class="main-font-size">Click mode creation button (see Figure 1.). You will see mode creation dialog:</li>
+          <figure>
+          <center>
+          <img src="../images/modeCr.png" alt="Mode creation dialog" align="middle" width="400">
+          <figcaption>Figure 2</figcaption>
+          </center>
+          </figure>
+          <li class="main-font-size">Fill fields in mode creation dialog: add urls and programs (there must be at least one url or program in the mode), which will be disabled during mode session, choose unique name for mode and optionally add description and progress (progress can be used just as your own progree at some task =) ).</li>
+        </ul>
+      </div><!-- .row -->      
+    </div>
+    </hr>
+      <div class="row">
+        <h1 id="mode_start">Starting the mode</h1>
+        <p>
+        Finally, when you added at least one mode to list you can choose it. Before choosing you need to specify duration of the session. Click mode choose button (see Figure 1) after you have entered duration and choosen mode from the list. Now the mode session is started and Process Control is running at the background. You can only see icon in the tray (you can point the cursor to icon to see the session left time):
+        </p>
+          <figure>
+          <center>
+          <img src="../images/tray.png" alt="Tray icon" align="middle" width="130">
+          <figcaption>Figure 3</figcaption>
+          </center>
+          </figure>
+        <p>
+        After session end you will be asked to change the progress (if it's supported by the mode) of the mode, which were running.
+        </p>
+        <p>
+        The important thing is that you can't see Process Control process in the taskmgr.exe during the session, but remember that (if you need it so hard!) you still can kill Process Control from command line (see <a href="http://en.wikipedia.org/wiki/Kill_(command)#Microsoft_Windows">how</a>), but if you doing so you must also kill process with name <i>taskmgrHooker32.exe</i> or <i>taskmgrHooker64.exe</i>.
+        </p>
+      </div><!-- .row -->      
+
+     </hr>
+    <div class="row">
+      <h1 id="fdbk">Contact</h1>
+      <p>
+      If you have any quetions or smth., contact my by email: <a href="mailto:youremailaddress">egor-mailbox@narod.ru</a>.
+      Also you can post at <a href="https://github.com/egorbunov/ProcessControl">github repository</a> page.
+      </p>
+    </div><!-- .row -->      
+
+    </div>
+
+    </article>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/toc.js"></script>
+  </body>
+</html>

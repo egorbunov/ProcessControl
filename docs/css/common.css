@@ -1,0 +1,20 @@
+body {
+  padding-bottom: 20px;
+  min-height: 2000px
+}
+
+body #content {
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 914px;
+}
+
+.pc-back {
+	width: 150px;
+    height: 30px;
+	background: url(../images/pcicon.png);
+	background-repeat: no-repeat;
+	background-size: contain;
+}
