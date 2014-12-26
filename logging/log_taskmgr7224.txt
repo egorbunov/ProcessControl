@@ -1,4 +1,0 @@
-[7224] INFO: Trying to read from shared mem
-[7224] INFO: ProcessControll.exe pid = 6152 ; tasmgrHooker pid = 3824
-[7224] INFO: Dll process attach. Initializing hook ...
-[7224] INFO: Dll detach.
