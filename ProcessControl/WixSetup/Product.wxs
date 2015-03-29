@@ -9,6 +9,7 @@
     <!-- Product features (I have only one feature (atomic part of the product))-->
     <Feature Id="ProcessControlFeature" Title="ProcessControlSetup86" Level="1">
       <ComponentGroupRef Id="BinComponents" />
+      <ComponentGroupRef Id="BinPlatformComponents" />
       <ComponentGroupRef Id="LoggingComponents" />
       <ComponentGroupRef Id="DataComponents" />
       <ComponentGroupRef Id="HookComponents" />
@@ -34,6 +35,7 @@
 
   <!-- Variables -->
   <?define QTBIN= "C:\Qt\Qt5.4.0(x86)\5.4\msvc2013\bin" ?>
+  <?define QTPLATFORMSBIN= "C:\Qt\Qt5.4.0(x86)\5.4\msvc2013\plugins\platforms" ?>
 
   <!-- Fragments -->
   <Fragment Id="Fragment_DirectoryStructure">
@@ -41,7 +43,9 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="ProcessControl">
-          <Directory Id="BINFOLDER" Name = "bin"/>
+          <Directory Id="BINFOLDER" Name = "bin">
+            <Directory Id="PLATFORMSDIR" Name = "platforms"/>
+          </Directory>
           <Directory Id="HOOKDLLFOLDER" Name = "indlls"/>
           <Directory Id="DATAFOLDER" Name = "data"/>
           <Directory Id="LOGGINGFOLDER" Name = "logging"/>
@@ -97,7 +101,18 @@
       <Component Id="Qt5GuiDLL" Guid="{9DF8D0FA-A27C-42E4-87B5-1B5239A49249}">
         <File Source="$(var.QTBIN)\Qt5Gui.dll" KeyPath="yes"/>
       </Component>
+      <Component Id="MSVCR120DLL" Guid="{B2C4E3D1-05F0-4038-B5C0-6A7048E8D22B}">
+        <File Source="C:\Windows\System32\msvcr120.dll" KeyPath="yes"/>
+      </Component>
     </ComponentGroup>
+
+    <ComponentGroup Id="BinPlatformComponents" Directory="PLATFORMSDIR">
+      <Component Id="QWINDOWSDLL" Guid="{36F112AF-FFDE-4638-A149-3A9D634E2C5D}">
+        <File Source="$(var.QTPLATFORMSBIN)\qwindows.dll" KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
+    
+    
 
     <ComponentGroup Id="HookComponents" Directory="HOOKDLLFOLDER">
       <Component Id="COMP_chromeHookDll" Guid="{5F00A19E-7A6C-48A8-A3E0-DD230352B990}" KeyPath="yes">
